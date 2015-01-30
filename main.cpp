@@ -8,9 +8,8 @@
 #include "PortCOM.h"
 #include <iostream>
 #include <thread>
-#include <windows.h>
+//#include <windows.h>
 
-//#define __cplusplus 201104L
 
 
 PortCOM connection(4,9600);
@@ -33,10 +32,10 @@ int main(){
 	connection.open();
 
 	std::thread test(readData);
-	Sleep(1000);
+	//Sleep(1000);
 	connection.sendByte((std::uint8_t)'A');
-	Sleep(1000);
-	uint8_t ch[] = "asdfasdf\nsdfsdf";
+	//Sleep(1000);
+    std::uint8_t ch[] = "asdfasdf\nsdfsdf";
 	connection.sendBlock(ch,30);
 
 	test.join();
