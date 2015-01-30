@@ -25,11 +25,11 @@ public:
 	void open();
 	void close();
 
-	void sendByte(std::uint8_t byte);
-	std::uint8_t readByte();
+	void sendByte(uint8_t byte);
+	uint8_t readByte();
 
-	void sendBlock(std::uint8_t *buffer, std::uint8_t length);
-	uint8_t readBlock(std::uint8_t *buffer, std::uint8_t length);
+	void sendBlock(uint8_t *buffer, uint8_t length);
+	uint8_t readBlock(uint8_t *buffer, uint8_t length);
 
 };
 

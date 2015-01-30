@@ -18,7 +18,7 @@ void readData(){
 	bool read = false;
 	while (!read){
 		try {
-			//std::uint8_t c = connection.readByte();
+			//uint8_t c = connection.readByte();
 			uint8_t ch[30];
 			int read = connection.readBlock(ch,30);
 			for (int i = 0; i < read; ++i)
@@ -33,9 +33,9 @@ int main(){
 
 	std::thread test(readData);
 	//Sleep(1000);
-	connection.sendByte((std::uint8_t)'A');
+	connection.sendByte((uint8_t)'A');
 	//Sleep(1000);
-    std::uint8_t ch[] = "asdfasdf\nsdfsdf";
+    uint8_t ch[] = "asdfasdf\nsdfsdf";
 	connection.sendBlock(ch,30);
 
 	test.join();
