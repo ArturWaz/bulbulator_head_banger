@@ -17,17 +17,13 @@
 PortCOM connection(16,9600);
 
 void readData(){
-	bool read = false;
-	while (!read){
+	while (true){
 		try {
-			//uint8_t c = connection.readByte();
 			uint8_t ch[30] = {0};
-			//int readint = connection.readBlock(ch,20);
-            ch[0] = connection.readByte();
+			connection.readBlock(ch,30);
 			for (int i = 0; ch[i] != 0; ++i) {
-                std::cout << std::endl << i << '\t' << (char) ch[i] << std::endl;
+                std::cout << i << '\t' << (char) ch[i] << std::endl;
             }
-			//if (readint > 0) read = true;
 		} catch(bool e){}
 	}
 }
@@ -36,17 +32,16 @@ int main(){
 	connection.open();
 
 	std::thread test(readData);
-	//Sleep(1000);
 	connection.sendByte((uint8_t)'A');
-    //readData();
 	//Sleep(1000);
     sleep(1);
 
-    uint8_t ch[] = "asdfa";
+    uint8_t ch[30] = {0x00};
+    ch[0] = 'a'; ch[1] = 'b'; ch[2] = 'f'; ch[3] = 'c'; ch[4] = 'd';
 	connection.sendBlock(ch,30);
-    //sleep(1);
-    //readData();
 
 	test.join();
 	connection.close();
+
+    return 0;
 }

@@ -131,7 +131,6 @@ int RS232_OpenComport(int comport_number, int baudrate, const char *mode)
                    break;
     default      : printf("invalid baudrate\n");
                    return(1);
-                   break;
   }
 
   int cbits=CS8,
@@ -156,7 +155,6 @@ int RS232_OpenComport(int comport_number, int baudrate, const char *mode)
               break;
     default : printf("invalid number of data-bits '%c'\n", mode[0]);
               return(1);
-              break;
   }
 
   switch(mode[1])
@@ -172,7 +170,6 @@ int RS232_OpenComport(int comport_number, int baudrate, const char *mode)
               break;
     default : printf("invalid parity '%c'\n", mode[1]);
               return(1);
-              break;
   }
 
   switch(mode[2])
@@ -183,7 +180,6 @@ int RS232_OpenComport(int comport_number, int baudrate, const char *mode)
               break;
     default : printf("invalid number of stop bits '%c'\n", mode[2]);
               return(1);
-              break;
   }
 
 /*
