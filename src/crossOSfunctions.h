@@ -1,5 +1,5 @@
 /*
- * UM7LT.h
+ * crossOSfunctions.h
  *
  *  Created on: Jan 30, 2015
  *      Author: Artur
