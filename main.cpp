@@ -5,12 +5,16 @@
  *      Author: Artur
  */
 
-#include "PortCOM.h"
-#include "crossOSfunctions.h"
+
 #include <iostream>
 #include <thread>
+#include <EulerAngles.h>
+#include <UM7LT.h>
 
+#include "PortCOM.h"
+#include "crossOSfunctions.h"
 
+using namespace std;
 
 
 PortCOM connection(16,9600);
@@ -27,19 +31,19 @@ void readData(){
 	}
 }
 
+void threadTest(int nb){
+    long i = 0;
+    while(true){
+        std::cout << "Thread: " << nb << ", is working, iter: " << i++ << std::endl;
+        SLEEP_MS(1000);
+    }
+}
+
 int main(){
-	connection.open();
 
-	std::thread test(readData);
-	connection.sendByte((uint8_t)'A');
-    SLEEP_MS(1000);
+    EulerAnglesTime test(5.5,6.5,5.7,8.9);
 
-    uint8_t ch[30] = {0x00};
-    ch[0] = 'a'; ch[1] = 'b'; ch[2] = 'f'; ch[3] = 'c'; ch[4] = 'd';
-	connection.sendBlock(ch,30);
-
-	test.join();
-	connection.close();
+    cout<<"Angles+Time: ("<<test.getPhi()<<", "<<test.getTheta()<<", "<<test.getPsi()<<", "<<test.getTime()<<"); \n";
 
     return 0;
 }
