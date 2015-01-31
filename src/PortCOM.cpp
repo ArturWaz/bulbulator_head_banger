@@ -17,7 +17,7 @@ PortCOM::PortCOM(int portNumber, int baudrate): portNumber(portNumber), baudrate
 }
 
 PortCOM::PortCOM(int portNumber, int baudrate, const char*mode): portNumber(portNumber), baudrate(baudrate), mode(NULL) {
-	mode = new char[strlen(mode)];
+	mode = new char[strlen(mode)+1];
     std::strcpy(this->mode,mode);
 }
 
