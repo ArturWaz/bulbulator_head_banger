@@ -6,11 +6,10 @@
  */
 
 #include "PortCOM.h"
+#include "crossOSfunctions.h"
 #include <iostream>
 #include <thread>
 
-//#include <windows.h>
-#include <unistd.h>
 
 
 
@@ -33,8 +32,7 @@ int main(){
 
 	std::thread test(readData);
 	connection.sendByte((uint8_t)'A');
-	//Sleep(1000);
-    sleep(1);
+    SLEEP_MS(1000);
 
     uint8_t ch[30] = {0x00};
     ch[0] = 'a'; ch[1] = 'b'; ch[2] = 'f'; ch[3] = 'c'; ch[4] = 'd';
