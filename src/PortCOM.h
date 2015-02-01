@@ -31,6 +31,9 @@ public:
 	void sendBlock(uint8_t *buffer, uint8_t length);
 	uint8_t readBlock(uint8_t *buffer, uint8_t length);
 
+
+    int getPortNumber() const { return portNumber; }
+    int getBaudrate() const { return baudrate; }
 };
 
 #endif /* PORTCOM_H_ */

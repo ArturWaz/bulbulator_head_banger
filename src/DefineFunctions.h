@@ -20,4 +20,6 @@
 
 #endif
 
+#define ERROR_COM(portNr,string) (std::cerr<<"\tERROR: port: "<<portNr<<", message: "<<string<<std::endl)
+
 #endif /* CROSSOSFUNCTIONS_H_ */

@@ -21,7 +21,10 @@ PortCOM::PortCOM(int portNumber, int baudrate, const char*mode): portNumber(port
     std::strcpy(this->mode,mode);
 }
 
-PortCOM::~PortCOM(){ delete[] mode; }
+PortCOM::~PortCOM(){
+    close();
+    delete[] mode;
+}
 
 
 void PortCOM::open(){ RS232_OpenComport(portNumber, baudrate, mode); }
