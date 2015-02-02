@@ -13,6 +13,8 @@
 #include "PortCOM.h"
 
 
+// todo Make test of this class
+
 
 class MiniMaestro {
 

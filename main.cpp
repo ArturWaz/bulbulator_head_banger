@@ -8,15 +8,12 @@
 
 #include <iostream>
 #include <thread>
-#include <EulerAngles.h>
 #include <UM7LT.h>
-
-#include "PortCOM.h"
+#include "RobotControl.h"
 #include "DefineFunctions.h"
 
+
 using namespace std;
-
-
 
 void threadTest(int nb){
     long i = 0;
@@ -26,13 +23,32 @@ void threadTest(int nb){
     }
 }
 
+
+struct Test{
+
+    void test();
+    void test1();
+
+};
+
+#define STR(x) #x
+#define TEST(x) \
+    void Test::x(){ \
+        cout << STR(x) << endl; \
+    }
+
+
+TEST(test)
+TEST(test1)
+
+
 int main(){
 
-    UM7_LT test(16);
+    //UM7_LT test(16);
+    //test.threadedReading();
 
-    test.threadedReading();
 
-    while(true);
+    //while(true);
 
     return 0;
 }
