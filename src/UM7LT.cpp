@@ -14,7 +14,7 @@
 #include "DefineFunctions.h"
 
 
-UM7_LT::UM7_LT(int portNumber): portCOM(portNumber,115200) {
+UM7_LT::UM7_LT(int portNumber): portCOM(portNumber,115200), timeFrame(1.0) {
 	portCOM.open();
 }
 
