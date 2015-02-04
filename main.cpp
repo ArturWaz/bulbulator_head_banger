@@ -44,11 +44,17 @@ TEST(test1)
 
 int main(){
 
-    //UM7_LT test(16);
-    //test.threadedReading();
+    UM7_LT test(16);
+    test.threadedReading();
+    while(true);
 
 
-    //while(true);
+    uint8_t byte1 = 0b00001111;
+    uint8_t byte2 = 0b11001100;
+
+    cout<<hex<< (byte1^byte2) <<endl;
+
+
 
     return 0;
 }

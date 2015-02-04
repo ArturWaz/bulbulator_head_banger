@@ -133,6 +133,7 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
     char temp[256] = {};
     int k = 0;
     char checksum[] = "00";
+    uint8_t calculatedChecksum = 'P';
     if (packet.compareToString("$PCHRH",6)){ // Health packet
 //            std::cout << "Health packet: ";
 //            for (int i = 0; packet.packet[i] != '\0'; ++i) {
@@ -143,6 +144,9 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
     if (packet.compareToString("$PCHRA",6)){ // Euler Angles packet
         EulerAnglesTime eulerAnglesTime;
         for (int i = 0; i < packet.packet.size(); ++i) {
+
+            if (i > 1 && packet.packet[i] != '*')
+                calculatedChecksum ^= packet.packet[i];
 
             if (packet.packet[i] == ','){
                 temp[k++] = ' ';
@@ -164,8 +168,10 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
         eulerAnglesTime.setTheta(strtod(pEnd,&pEnd));
         eulerAnglesTime.setPsi(strtod(pEnd,NULL));
 
-        std::cout<<std::fixed<<std::setprecision(3)<<eulerAnglesTime.getTime()<<','<<eulerAnglesTime.getPhi()<<","<<eulerAnglesTime.getTheta()<<","<<eulerAnglesTime.getPsi()/*<<","<<checksum*/<<std::endl;
+        std::cout<<std::fixed<<std::setprecision(3)<<eulerAnglesTime.getTime()<<','<<eulerAnglesTime.getPhi()<<","<<eulerAnglesTime.getTheta()<<","<<eulerAnglesTime.getPsi();
         // todo check checksum
+
+        std::cout<<", "<<std::hex<<(int)calculatedChecksum<<std::dec<<std::endl;
     }
     if (packet.compareToString("$PCHRS,2",8)){ // Accelerometer
     }
