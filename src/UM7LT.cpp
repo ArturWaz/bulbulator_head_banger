@@ -129,6 +129,30 @@ void UM7_LT::threadedReading() {
 }
 
 
+
+#define GET_DOUBLE_FROM_PACKET \
+    for (int i = 0; i < packet.packet.size(); ++i) { \
+        if (i > 1 && packet.packet[i] != '*') \
+            calculatedChecksum ^= packet.packet[i]; \
+        if (packet.packet[i] == ','){ \
+            temp[k++] = ' '; \
+            continue; \
+        } \
+        if ((packet.packet[i] >= '0' && packet.packet[i] <= '9') || packet.packet[i] == '.' || packet.packet[i] == '-'){ \
+            temp[k++] = packet.packet[i]; \
+            continue; \
+        } \
+        if (packet.packet[i] == '*'){ \
+            checksum[0] = packet.packet[i+1]; \
+            checksum[1] = packet.packet[i+2]; \
+            break; \
+        } \
+    } \
+    char*pEnd;
+    // todo compare checksum
+
+
+
 void UM7_LT::parseNMEApacket(const Packet &packet) {
     char temp[256] = {};
     int k = 0;
@@ -143,37 +167,72 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
     }
     if (packet.compareToString("$PCHRA",6)){ // Euler Angles packet
         EulerAnglesTime eulerAnglesTime;
-        for (int i = 0; i < packet.packet.size(); ++i) {
+//        for (int i = 0; i < packet.packet.size(); ++i) {
+//
+//            if (i > 1 && packet.packet[i] != '*')
+//                calculatedChecksum ^= packet.packet[i];
+//
+//            if (packet.packet[i] == ','){
+//                temp[k++] = ' ';
+//                continue;
+//            }
+//            if ((packet.packet[i] >= '0' && packet.packet[i] <= '9') || packet.packet[i] == '.' || packet.packet[i] == '-'){
+//                temp[k++] = packet.packet[i];
+//                continue;
+//            }
+//            if (packet.packet[i] == '*'){
+//                checksum[0] = packet.packet[i+1];
+//                checksum[1] = packet.packet[i+2];
+//                break;
+//            }
+//        }
+//        char*pEnd;
+        GET_DOUBLE_FROM_PACKET
 
-            if (i > 1 && packet.packet[i] != '*')
-                calculatedChecksum ^= packet.packet[i];
 
-            if (packet.packet[i] == ','){
-                temp[k++] = ' ';
-                continue;
-            }
-            if ((packet.packet[i] >= '0' && packet.packet[i] <= '9') || packet.packet[i] == '.' || packet.packet[i] == '-'){
-                temp[k++] = packet.packet[i];
-                continue;
-            }
-            if (packet.packet[i] == '*'){
-                checksum[0] = packet.packet[i+1];
-                checksum[1] = packet.packet[i+2];
-                break;
-            }
-        }
-        char*pEnd;
         eulerAnglesTime.setTime(strtod(temp,&pEnd));
         eulerAnglesTime.setPhi(strtod(pEnd,&pEnd));
         eulerAnglesTime.setTheta(strtod(pEnd,&pEnd));
         eulerAnglesTime.setPsi(strtod(pEnd,NULL));
 
-        std::cout<<std::fixed<<std::setprecision(3)<<eulerAnglesTime.getTime()<<','<<eulerAnglesTime.getPhi()<<","<<eulerAnglesTime.getTheta()<<","<<eulerAnglesTime.getPsi();
-        // todo check checksum
+//        std::cout<<std::fixed<<std::setprecision(3)<<eulerAnglesTime.getTime()<<','<<eulerAnglesTime.getPhi()<<","<<eulerAnglesTime.getTheta()<<","<<eulerAnglesTime.getPsi()<<", "<<std::hex<<(int)calculatedChecksum<<std::dec<<std::endl;
+        bool clear = false;
+        if (eulerList.size()) {
+            clear = true;
+            if ((eulerAnglesTime.getTime() - eulerList.front().getTime()) < timeFrame)
+                clear = false;
+        }
 
-        std::cout<<", "<<std::hex<<(int)calculatedChecksum<<std::dec<<std::endl;
+        mtx.lock();
+        eulerList.push_back(eulerAnglesTime);
+        if (clear) eulerList.pop_front();
+        mtx.unlock();
+        return;
     }
     if (packet.compareToString("$PCHRS,2",8)){ // Accelerometer
+        Accelerometer accelerometer;
+        GET_DOUBLE_FROM_PACKET
+
+        if (((int)strtod(temp, &pEnd)) == 1) return;
+        accelerometer.setAx(strtod(temp,&pEnd));
+        accelerometer.setAy(strtod(temp, &pEnd));
+        accelerometer.setAz(strtod(temp, &pEnd));
+        accelerometer.setTime(strtod(temp, &pEnd));
+
+        bool clear = false;
+        if (accelerometerList.size()) {
+            clear = true;
+            if ((accelerometer.getTime() - accelerometerList.front().getTime()) < timeFrame)
+                clear = false;
+        }
+        // todo check this part
+//        std::cout<<std::fixed<<std::setprecision(3)<<accelerometer.getTime()<<','<<accelerometer.getPhi()<<","<<accelerometer.getTheta()<<","<<accelerometer.getPsi()<<", "<<std::hex<<(int)calculatedChecksum<<std::dec<<std::endl;
+
+        mtx.lock();
+        accelerometerList.push_back(accelerometer);
+        if (clear) accelerometerList.pop_front();
+        mtx.unlock();
+        return;
     }
 }
 

@@ -69,6 +69,7 @@ class UM7_LT {
     std::thread parseDataThread;
 
     std::list<EulerAnglesTime> eulerList;
+    std::list<Accelerometer> accelerometerList;
     double timeFrame;
 
     friend void readData(UM7_LT*);
