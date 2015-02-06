@@ -30,38 +30,21 @@ std::mutex mtx;
 
 void readData(UM7_LT *um7_lt) {
 
-    int packetPose = 0;
-    bool read = true; // check if packet is read
+    int packetPose;
     Packet packet;
+    packet.packet[0] = '\n';
 
     while (true) {
         try {
             uint8_t ch[128] = {0};
             um7_lt->portCOM.readBlock(ch, 128);
             for (int i = 0; ch[i] != 0 && i < 128; ++i) {
-
-                /* COMBINE PACKET */
-                if (ch[i] == '$') {
+                if (ch[i] == '$' || ch[i] == 's'){
+                    mtx.lock();
+                    packets.push(packet);
+                    mtx.unlock();
+//                    packet.coutPacket("Read data: ");
                     packetPose = 0;
-                    read = false;
-                }
-                else if (packetPose > 10 && packet.packet[packetPose - 3] == '*') {
-                    if (!read) {
-                        packet.packet[packetPose] = '\0';
-
-                        std::cout << "Packet(read): ";
-                        for (int i = 0; i < packetPose; ++i) {
-                            std::cout << packet.packet[i];
-                        }
-                        std::cout << std::endl;
-
-//                        mtx.lock();
-//                        packets.push(packet);
-//                        mtx.unlock();
-
-                        read = true;
-                    }
-                    break;
                 }
                 packet.packet[packetPose++] = ch[i];
             }
@@ -85,19 +68,13 @@ void parseDataPackets(UM7_LT *um7_lt) {
         packets.pop();
         mtx.unlock();
 
+        //packet.coutPacket("Data parser: ");
+
         if (packet.compareToString("$PCHR", 5)) {
-
-//            std::cout << "Packet: ";
-//            for (int i = 0; packet.packet[i] != '\0'; ++i) {
-//                std::cout << packet.packet[i];
-//            }
-//            std::cout << std::endl;
-
             um7_lt->parseNMEApacket(packet);
-
         }
         else {
-            ERROR_COM(um7_lt->portCOM.getPortNumber(), "Could not recognize the packet type.");
+            if (packet.packet[0] != '\n') ERROR_COM(um7_lt->portCOM.getPortNumber(), "Could not recognize the packet type.");
         }
     }
 }
@@ -108,6 +85,13 @@ void parseDataPackets(UM7_LT *um7_lt) {
 
 
 
+void Packet::coutPacket(const char*string)const{
+    std::cout << string;
+    for (int i = 0; packet[i] != '\n' && i < packet.size(); ++i) {
+        std::cout << (char) packet[i];
+    }
+    std::cout << std::endl;
+}
 
 bool Packet::compareToString(const char *string, int numberOfCharacters)const{
     for (int i = 0; i < numberOfCharacters; ++i)
@@ -116,11 +100,11 @@ bool Packet::compareToString(const char *string, int numberOfCharacters)const{
 }
 
 
-void Packet::convertToChar(char *pointer)const{
-    for (int i = 0; i < 256 && packet[1] != '\0'; ++i) {
-        pointer[i] = packet[i];
-    }
-}
+//void Packet::convertToChar(char *pointer)const{
+//    for (int i = 0; i < 256 && packet[1] != 0; ++i) {
+//        pointer[i] = packet[i];
+//    }
+//}
 
 
 void UM7_LT::threadedReading() {
@@ -164,11 +148,7 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
     char temp[256] = {};
     uint8_t calculatedChecksum = 'P';
     if (packet.compareToString("$PCHRH",6)){ // Health packet
-//            std::cout << "Health packet: ";
-//            for (int i = 0; packet.packet[i] != '\0'; ++i) {
-//                std::cout << packet.packet[i];
-//            }
-//            std::cout << std::endl;
+        packet.coutPacket("Health packet: ");
     }
     if (packet.compareToString("$PCHRA",6)){ // Euler Angles packet
         EulerAnglesTime eulerAnglesTime;
@@ -180,7 +160,7 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
         eulerAnglesTime.setTheta(strtod(pEnd,&pEnd));
         eulerAnglesTime.setPsi(strtod(pEnd,NULL));
 
-//        std::cout<<"Euler angles: "<<std::fixed<<std::setprecision(3)<<eulerAnglesTime.getTime()<<','<<eulerAnglesTime.getPhi()<<","<<eulerAnglesTime.getTheta()<<","<<eulerAnglesTime.getPsi()<<", "<<std::hex<<(int)calculatedChecksum<<std::dec<<std::endl;
+        std::cout<<"Euler angles: "<<std::fixed<<std::setprecision(3)<<eulerAnglesTime.getTime()<<','<<eulerAnglesTime.getPhi()<<","<<eulerAnglesTime.getTheta()<<","<<eulerAnglesTime.getPsi()<<", "<<std::hex<<(int)calculatedChecksum<<std::dec<<std::endl;
         bool clear = false;
         if (eulerList.size()) {
             clear = true;
@@ -212,7 +192,7 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
                 clear = false;
         }
 
-//        std::cout<<"Accelerometer: "<<std::fixed<<std::setprecision(4)<<accelerometer.getTime()<<','<<accelerometer.getAx()<<","<<accelerometer.getAy()<<","<<accelerometer.getAz()<<", "<<std::hex<<(int)calculatedChecksum<<std::dec<<std::endl;
+        std::cout<<"Accelerometer: "<<std::fixed<<std::setprecision(4)<<accelerometer.getTime()<<','<<accelerometer.getAx()<<","<<accelerometer.getAy()<<","<<accelerometer.getAz()<<", "<<std::hex<<(int)calculatedChecksum<<std::dec<<std::endl;
 
         mtx.lock();
         accelerometerList.push_back(accelerometer);
