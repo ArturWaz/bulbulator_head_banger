@@ -38,8 +38,9 @@ void readData(UM7_LT *um7_lt) {
         try {
             uint8_t ch[128] = {0};
             um7_lt->portCOM.readBlock(ch, 128);
-            for (int i = 0; ch[i] != 0; ++i) {
-                // COMBINE PACKET
+            for (int i = 0; ch[i] != 0 && i < 128; ++i) {
+
+                /* COMBINE PACKET */
                 if (ch[i] == '$') {
                     packetPose = 0;
                     read = false;
@@ -48,15 +49,16 @@ void readData(UM7_LT *um7_lt) {
                     if (!read) {
                         packet.packet[packetPose] = '\0';
 
-//                        std::cout << "Packet: ";
-//                        for (int i = 0; i < packetPose; ++i) {
-//                            std::cout << packet.packet[i];
-//                        }
-//                        std::cout << std::endl;
+                        std::cout << "Packet(read): ";
+                        for (int i = 0; i < packetPose; ++i) {
+                            std::cout << packet.packet[i];
+                        }
+                        std::cout << std::endl;
 
-                        mtx.lock();
-                        packets.push(packet);
-                        mtx.unlock();
+//                        mtx.lock();
+//                        packets.push(packet);
+//                        mtx.unlock();
+
                         read = true;
                     }
                     break;
@@ -85,11 +87,11 @@ void parseDataPackets(UM7_LT *um7_lt) {
 
         if (packet.compareToString("$PCHR", 5)) {
 
-            std::cout << "Packet: ";
-            for (int i = 0; packet.packet[i] != '\0'; ++i) {
-                std::cout << packet.packet[i];
-            }
-            std::cout << std::endl;
+//            std::cout << "Packet: ";
+//            for (int i = 0; packet.packet[i] != '\0'; ++i) {
+//                std::cout << packet.packet[i];
+//            }
+//            std::cout << std::endl;
 
             um7_lt->parseNMEApacket(packet);
 
@@ -131,6 +133,8 @@ void UM7_LT::threadedReading() {
 
 
 #define GET_DOUBLE_FROM_PACKET \
+    int k = 0; \
+    char checksum[] = "00"; \
     for (int i = 0; i < packet.packet.size(); ++i) { \
         if (i > 1 && packet.packet[i] != '*') \
             calculatedChecksum ^= packet.packet[i]; \
@@ -148,15 +152,16 @@ void UM7_LT::threadedReading() {
             break; \
         } \
     } \
+    if (strtol(checksum,NULL,16) != calculatedChecksum) { \
+        ERROR_COM(portCOM.getPortNumber(),"Incorrect checksum."); \
+        return; \
+    } \
     char*pEnd;
-    // todo compare checksum
 
 
 
 void UM7_LT::parseNMEApacket(const Packet &packet) {
     char temp[256] = {};
-    int k = 0;
-    char checksum[] = "00";
     uint8_t calculatedChecksum = 'P';
     if (packet.compareToString("$PCHRH",6)){ // Health packet
 //            std::cout << "Health packet: ";
@@ -167,35 +172,15 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
     }
     if (packet.compareToString("$PCHRA",6)){ // Euler Angles packet
         EulerAnglesTime eulerAnglesTime;
-//        for (int i = 0; i < packet.packet.size(); ++i) {
-//
-//            if (i > 1 && packet.packet[i] != '*')
-//                calculatedChecksum ^= packet.packet[i];
-//
-//            if (packet.packet[i] == ','){
-//                temp[k++] = ' ';
-//                continue;
-//            }
-//            if ((packet.packet[i] >= '0' && packet.packet[i] <= '9') || packet.packet[i] == '.' || packet.packet[i] == '-'){
-//                temp[k++] = packet.packet[i];
-//                continue;
-//            }
-//            if (packet.packet[i] == '*'){
-//                checksum[0] = packet.packet[i+1];
-//                checksum[1] = packet.packet[i+2];
-//                break;
-//            }
-//        }
-//        char*pEnd;
-        GET_DOUBLE_FROM_PACKET
 
+        GET_DOUBLE_FROM_PACKET
 
         eulerAnglesTime.setTime(strtod(temp,&pEnd));
         eulerAnglesTime.setPhi(strtod(pEnd,&pEnd));
         eulerAnglesTime.setTheta(strtod(pEnd,&pEnd));
         eulerAnglesTime.setPsi(strtod(pEnd,NULL));
 
-//        std::cout<<std::fixed<<std::setprecision(3)<<eulerAnglesTime.getTime()<<','<<eulerAnglesTime.getPhi()<<","<<eulerAnglesTime.getTheta()<<","<<eulerAnglesTime.getPsi()<<", "<<std::hex<<(int)calculatedChecksum<<std::dec<<std::endl;
+//        std::cout<<"Euler angles: "<<std::fixed<<std::setprecision(3)<<eulerAnglesTime.getTime()<<','<<eulerAnglesTime.getPhi()<<","<<eulerAnglesTime.getTheta()<<","<<eulerAnglesTime.getPsi()<<", "<<std::hex<<(int)calculatedChecksum<<std::dec<<std::endl;
         bool clear = false;
         if (eulerList.size()) {
             clear = true;
@@ -209,15 +194,16 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
         mtx.unlock();
         return;
     }
-    if (packet.compareToString("$PCHRS,2",8)){ // Accelerometer
+    if (packet.compareToString("$PCHRS,1",8)){ // choose accelerometer
         Accelerometer accelerometer;
+
         GET_DOUBLE_FROM_PACKET
 
-        if (((int)strtod(temp, &pEnd)) == 1) return;
-        accelerometer.setAx(strtod(temp,&pEnd));
-        accelerometer.setAy(strtod(temp, &pEnd));
-        accelerometer.setAz(strtod(temp, &pEnd));
-        accelerometer.setTime(strtod(temp, &pEnd));
+        strtod(temp, &pEnd);
+        accelerometer.setTime(strtod(pEnd, &pEnd));
+        accelerometer.setAx(strtod(pEnd,&pEnd));
+        accelerometer.setAy(strtod(pEnd, &pEnd));
+        accelerometer.setAz(strtod(pEnd, NULL));
 
         bool clear = false;
         if (accelerometerList.size()) {
@@ -225,8 +211,8 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
             if ((accelerometer.getTime() - accelerometerList.front().getTime()) < timeFrame)
                 clear = false;
         }
-        // todo check this part
-//        std::cout<<std::fixed<<std::setprecision(3)<<accelerometer.getTime()<<','<<accelerometer.getPhi()<<","<<accelerometer.getTheta()<<","<<accelerometer.getPsi()<<", "<<std::hex<<(int)calculatedChecksum<<std::dec<<std::endl;
+
+//        std::cout<<"Accelerometer: "<<std::fixed<<std::setprecision(4)<<accelerometer.getTime()<<','<<accelerometer.getAx()<<","<<accelerometer.getAy()<<","<<accelerometer.getAz()<<", "<<std::hex<<(int)calculatedChecksum<<std::dec<<std::endl;
 
         mtx.lock();
         accelerometerList.push_back(accelerometer);
