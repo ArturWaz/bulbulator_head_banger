@@ -16,9 +16,7 @@
 // todo Make test of this class
 
 
-class MiniMaestro {
-
-    PortCOM portCOM;
+class MiniMaestro: private PortCOM {
 
 public:
 

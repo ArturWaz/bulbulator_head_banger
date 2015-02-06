@@ -64,7 +64,7 @@ struct Packet {
 };
 
 
-class UM7_LT: public PortCOM {
+class UM7_LT: private PortCOM {
 
     //PortCOM portCOM;
     std::thread readDataThread;
