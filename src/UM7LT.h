@@ -11,6 +11,7 @@
 #include <math.h>
 #include <list>
 #include <thread>
+#include <mutex>
 #include "PortCOM.h"
 #include "Quaternion.h"
 #include "EulerAngles.h"
@@ -63,14 +64,16 @@ struct Packet {
 };
 
 
-class UM7_LT {
+class UM7_LT: public PortCOM {
 
-    PortCOM portCOM;
+    //PortCOM portCOM;
     std::thread readDataThread;
     std::thread parseDataThread;
 
     std::list<EulerAnglesTime> eulerList;
+    std::mutex eulerListMutex;
     std::list<Accelerometer> accelerometerList;
+    std::mutex accelerometerListMutex;
     double timeFrame;
 
     friend void readData(UM7_LT*);

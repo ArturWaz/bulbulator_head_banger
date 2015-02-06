@@ -11,48 +11,55 @@
 #include <UM7LT.h>
 #include <mutex>
 #include "RobotControl.h"
+#include "queue"
 #include "DefineFunctions.h"
 
 using namespace std;
 
 
-mutex mut;
-mutex mut1;
+queue<int> que;
+mutex mtx;
 
 void threadTest(int nb){
-    mut.lock();
     long i = 0;
     while(true){
-        std::cout << "Thread: " << nb << ", is working, iter: " << i++ << std::endl;
+//        mtx.lock();
+        que.push(i);
+        if (que.size() >= 10)
+            que.pop();
+        ++i;
+//        mtx.unlock();
         SLEEP_MS(1000);
     }
-    mut.unlock();
 }
 
-void threadTestMain(){
-    mut1.lock();
+void threadTest2(int nb){
     long i = 0;
     while(true){
-        std::cout << "Main" << " is working, iter: " << i++ << std::endl;
+//        mtx.lock();
+        if (!que.empty()) que.pop();
+//        mtx.unlock();
         SLEEP_MS(1000);
     }
-    mut.unlock();
 }
 
 
 int main(){
 
-    UM7_LT test(4);
-    test.threadedReading();
-    while(true);
+//    UM7_LT test(4);
+//    test.threadedReading();
+//    while(true);
 
 
 
-//    thread t1(threadTest,1);
-//    thread t2(threadTest,2);
-//
-//    SLEEP_MS(1000);
-//    threadTestMain();
+    thread t1(threadTest,1);
+//    SLEEP_MS(500);
+//    thread t2(threadTest2,2);
+    while(true){
+        if (!que.empty()) cout<<que.front()<<endl;
+        else cout<<"empty\n";
+        SLEEP_MS(100);
+    }
 
     return 0;
 }
