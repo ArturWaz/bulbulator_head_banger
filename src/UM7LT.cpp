@@ -73,6 +73,9 @@ void parseDataPackets(UM7_LT *um7_lt) {
         if (packet.compareToString("$PCHR", 5)) {
             um7_lt->parseNMEApacket(packet);
         }
+        else if (packet.compareToString("snp", 3)){
+            // todo Binary packets parser
+        }
         else {
             if (packet.packet[0] != '\n') ERROR_COM(um7_lt->portCOM.getPortNumber(), "Could not recognize the packet type.");
         }
