@@ -10,6 +10,7 @@
 #include <thread>
 #include <UM7LT.h>
 #include <mutex>
+#include <RotationMatrix.h>
 #include "RobotControl.h"
 #include "queue"
 #include "DefineFunctions.h"
@@ -46,20 +47,36 @@ void threadTest2(int nb){
 
 int main(){
 
-//    UM7_LT test(4);
-//    test.threadedReading();
-//    while(true);
+//    printf("sdf");
+    UM7_LT test(16);
+    test.threadedReading();
+    while(true);
+
+//    printf("hello");
+//    printf("\r          ");
+//    printf("\rbye %.6f",67.0);
+
+//    EulerAngles euler;
+//    RotationMatrix rot;
+//
+//    euler.toRotationMatrix(rot);
+//
+//
+//    for (int i = 0; i < 9; ++i) {
+//        cout<<rot[i]<<'\t';
+//        if (!((i+1)%3)) cout << endl;
+//    }
 
 
 
-    thread t1(threadTest,1);
-//    SLEEP_MS(500);
-//    thread t2(threadTest2,2);
-    while(true){
-        if (!que.empty()) cout<<que.front()<<endl;
-        else cout<<"empty\n";
-        SLEEP_MS(100);
-    }
+//    thread t1(threadTest,1);
+////    SLEEP_MS(500);
+////    thread t2(threadTest2,2);
+//    while(true){
+//        if (!que.empty()) cout<<que.front()<<endl;
+//        else cout<<"empty\n";
+//        SLEEP_MS(100);
+//    }
 
     return 0;
 }

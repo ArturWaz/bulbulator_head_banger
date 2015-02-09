@@ -17,6 +17,7 @@
 #include "EulerAngles.h"
 
 
+
 class QuaternionTime: public Quaternion{
     double time;
 public:
@@ -54,6 +55,9 @@ public:
 
     inline double getTime() const { return time; }
     inline void setTime(const double& time) { Accelerometer::time = time; }
+
+    void eleminitateGravity(EulerAnglesTime);
+    void eleminitateGravity(QuaternionTime);
 };
 
 struct Packet {
@@ -64,14 +68,16 @@ struct Packet {
 };
 
 
+
 class UM7_LT: private PortCOM {
 
-    //PortCOM portCOM;
     std::thread readDataThread;
     std::thread parseDataThread;
 
     std::list<EulerAnglesTime> eulerList;
     std::mutex eulerListMutex;
+    std::list<QuaternionTime> quaternionList;
+    std::mutex quaternionListMutex;
     std::list<Accelerometer> accelerometerList;
     std::mutex accelerometerListMutex;
     double timeFrame;
@@ -91,6 +97,7 @@ public:
     inline void setTimeFrame(const double& timeFrame) { UM7_LT::timeFrame = timeFrame; }
 
     void threadedReading();
+
 
 };
 

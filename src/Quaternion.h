@@ -10,30 +10,49 @@
 #define Quaternion_H_
 
 
+#include "RotationMatrix.h"
+
 class Quaternion {
 
-    double a;
-    double b;
-    double c;
-    double d;
+    double vector[4];
+    double *const a;
+    double *const b;
+    double *const c;
+    double *const d;
 
 public:
 
-    Quaternion(): a(0.0), b(0.0), c(0.0), d(0.0) {}
+    Quaternion(): a(vector), b(vector+1), c(vector+2), d(vector+3) {}
     Quaternion(const double& a, const double& b, const double& c,const double& d):
-            a(a), b(b), c(c), d(d) {}
+            a(vector), b(vector+1), c(vector+2), d(vector+3){
+        vector[0] = a; vector[1] = b; vector[2] = c; vector[3] = d;
+    }
 
-    inline double getA() const { return a; }
-    inline void setA(const double& a) { Quaternion::a = a; }
+    Quaternion&operator=(const Quaternion&);
 
-    inline double getB() const { return b; }
-    inline void setB(const double& b) { Quaternion::b = b; }
+    inline double getA() const { return vector[0]; }
+    inline void setA(const double& a) { vector[0] = a; }
 
-    inline double getC() const { return c; }
-    inline void setC(const double& c) { Quaternion::c = c; }
+    inline double getB() const { return vector[1]; }
+    inline void setB(const double& b) { vector[1] = b; }
 
-    inline double getD() const { return d; }
-    inline void setD(const double& d) { Quaternion::d = d; }
+    inline double getC() const { return vector[2]; }
+    inline void setC(const double& c) { vector[2] = c; }
+
+    inline double getD() const { return vector[3]; }
+    inline void setD(const double& d) { vector[3] = d; }
+
+    inline const double&operator[](int i) const { return vector[i]; }
+    inline double&operator[](int i) { return vector[i]; }
+
+    Quaternion&operator*(const Quaternion&);
+
+    double norm() const;
+
+    void toUnit();
+
+    void toRotationMatrix(RotationMatrix&)const;
+
 };
 
 

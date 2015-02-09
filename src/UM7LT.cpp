@@ -11,6 +11,7 @@
 #include <iomanip>
 #include "UM7LT.h"
 #include "DefineFunctions.h"
+#include "CONFIG.h"
 
 
 UM7_LT::UM7_LT(int portNumber): PortCOM(portNumber,115200), timeFrame(1.0) {
@@ -66,7 +67,7 @@ void parseDataPackets(UM7_LT *um7_lt) {
         packets.pop();
         PacketQueueMutex.unlock();
 
-        //packet.coutPacket("Data parser: ");
+//        packet.coutPacket("Data parser: ");
 
         if (packet.compareToString("$PCHR", 5)) {
             um7_lt->parseNMEApacket(packet);
@@ -149,7 +150,7 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
     char temp[256] = {};
     uint8_t calculatedChecksum = 'P';
     if (packet.compareToString("$PCHRH",6)){ // Health packet
-        packet.coutPacket("Health packet: ");
+//        packet.coutPacket("Health packet: ");
     }
     if (packet.compareToString("$PCHRA",6)){ // Euler Angles packet
         EulerAnglesTime eulerAnglesTime;
@@ -176,16 +177,18 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
         eulerListMutex.unlock();
         return;
     }
-    if (packet.compareToString("$PCHRS,1",8)){ // choose accelerometer
+    if (packet.compareToString("$PCHRS,1",8)) { // choose accelerometer
         Accelerometer accelerometer;
+        const double gravityConstant = 9.8; // recommended, page: 4, from: http://www.chrobotics.com/docs/AN-1008-SensorsForOrientationEstimation.pdf
+
 
         GET_DOUBLES_FROM_PACKET
 
         strtod(temp, &pEnd);
         accelerometer.setTime(strtod(pEnd, &pEnd));
-        accelerometer.setAx(strtod(pEnd,&pEnd));
-        accelerometer.setAy(strtod(pEnd, &pEnd));
-        accelerometer.setAz(strtod(pEnd, NULL));
+        accelerometer.setAx(strtod(pEnd, &pEnd)*gravityConstant);
+        accelerometer.setAy(strtod(pEnd, &pEnd)*gravityConstant);
+        accelerometer.setAz(strtod(pEnd, NULL)*gravityConstant);
 
         bool clear = false;
         if (accelerometerList.size()) {
@@ -194,7 +197,12 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
                 clear = false;
         }
 
-//        std::cout<<"Accelerometer: "<<std::fixed<<std::setprecision(4)<<accelerometer.getTime()<<','<<accelerometer.getAx()<<","<<accelerometer.getAy()<<","<<accelerometer.getAz()<<", "<<std::hex<<(int)calculatedChecksum<<std::dec<<std::endl;
+        std::cout << "Accelerometer: " << std::fixed << std::setprecision(4) << accelerometer.getTime() << ',' << accelerometer.getAx() << "," << accelerometer.getAy() << "," << accelerometer.getAz() << ", " << std::hex << (int) calculatedChecksum << std::dec << std::endl;
+
+        if (!quaternionList.empty()) {
+            accelerometer.eleminitateGravity(quaternionList.front());
+            std::cout << "Without gravi: " << std::fixed << std::setprecision(4) << accelerometer.getTime() << ',' << accelerometer.getAx() << "," << accelerometer.getAy() << "," << accelerometer.getAz() << ", " << std::hex << (int) calculatedChecksum << std::dec << std::endl;
+        }
 
         accelerometerListMutex.lock();
         accelerometerList.push_back(accelerometer);
@@ -202,5 +210,68 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
         accelerometerListMutex.unlock();
         return;
     }
+    if (packet.compareToString("$PCHRQ,",7)) { // quaternions
+        QuaternionTime quaternion;
+
+
+        GET_DOUBLES_FROM_PACKET
+
+
+        quaternion.setTime(strtod(temp, &pEnd));
+        quaternion.setA(strtod(pEnd, &pEnd));
+        quaternion.setB(strtod(pEnd, &pEnd));
+        quaternion.setC(strtod(pEnd, &pEnd));
+        quaternion.setD(strtod(pEnd, NULL));
+
+        bool clear = false;
+        if (quaternionList.size()) {
+            clear = true;
+            if ((quaternion.getTime() - quaternionList.front().getTime()) < timeFrame)
+                clear = false;
+        }
+
+
+//        std::cout << "Quaternion: " << std::fixed << std::setprecision(6) << quaternion.getTime() << ',' << quaternion.getA() << "," << quaternion.getB() << "," << quaternion.getC() << ", " << quaternion.getD() << ", " << std::hex << (int) calculatedChecksum << std::dec << std::endl;
+//        if (quaternion.norm() < 0.999985)std::cout<<quaternion.norm()<<std::endl;
+//        printf("t\n");
+//        printf("\r %.6f, %.6f, %.6f, %.6f, %.6f, ",quaternion.getTime(),quaternion.getA(),quaternion.getB(),quaternion.getC(),quaternion.getD());
+
+        quaternionListMutex.lock();
+        quaternionList.push_back(quaternion);
+        if (clear) quaternionList.pop_front();
+        quaternionListMutex.unlock();
+        return;
+    }
 }
 
+
+
+
+void Accelerometer::eleminitateGravity(EulerAnglesTime aConst){ // todo doesnt work
+    RotationMatrix rotationMatrix;
+    aConst.setPhi(-1*aConst.getPhi());
+    aConst.setPsi(-1*aConst.getPsi());
+    aConst.setTheta(-1*aConst.getTheta());
+    aConst.toRotationMatrix(rotationMatrix);
+
+    double x, y, z;
+    x = ax*rotationMatrix[0] + ay*rotationMatrix[1] + az*rotationMatrix[2];
+    y = ax*rotationMatrix[3] + ay*rotationMatrix[4] + az*rotationMatrix[5];
+    z = ax*rotationMatrix[6] + ay*rotationMatrix[7] + az*rotationMatrix[8];
+    ax = x;
+    ay = y;
+    az = z + GRAVITY_CONSTANT;
+}
+
+void Accelerometer::eleminitateGravity(QuaternionTime quaternionTime) { // todo doesnt work
+    RotationMatrix rotationMatrix;
+    quaternionTime.toRotationMatrix(rotationMatrix);
+
+    double x, y, z;
+    x = ax*rotationMatrix[0] + ay*rotationMatrix[1] + az*rotationMatrix[2];
+    y = ax*rotationMatrix[3] + ay*rotationMatrix[4] + az*rotationMatrix[5];
+    z = ax*rotationMatrix[6] + ay*rotationMatrix[7] + az*rotationMatrix[8];
+    ax = x;
+    ay = y;
+    az = z + GRAVITY_CONSTANT;
+}

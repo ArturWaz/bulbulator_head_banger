@@ -10,6 +10,7 @@
 #define EulerAngles_H_
 
 
+#include "RotationMatrix.h"
 
 class EulerAngles {
 
@@ -23,6 +24,7 @@ public:
     EulerAngles(const double& phi, const double& theta, const double& psi):
             phi(phi), theta(theta), psi(psi) {}
 
+
     inline double getPhi() const { return phi; }
     inline void setPhi(const double& phi) { EulerAngles::phi = phi; }
 
@@ -31,6 +33,9 @@ public:
 
     inline double getPsi() const { return psi; }
     inline void setPsi(const double& psi) { EulerAngles::psi = psi; }
+
+    void toRotationMatrix(RotationMatrix&)const;
+
 };
 
 
