@@ -22,17 +22,17 @@ void Quaternion::toUnit(){
 }
 
 void Quaternion::toRotationMatrix(RotationMatrix &aConst) const{
-    aConst.access(0,0) = vector[0]*vector[0] + vector[1]*vector[1] - vector[2]*vector[2] - vector[3]*vector[3];
-    aConst.access(0,1) = 2*(vector[1]*vector[2] - vector[0]*vector[3]);
-    aConst.access(0,2) = 2*(vector[1]*vector[3] + vector[0]*vector[2]);
+    aConst(0,0) = vector[0]*vector[0] + vector[1]*vector[1] - vector[2]*vector[2] - vector[3]*vector[3];
+    aConst(0,1) = 2*(vector[1]*vector[2] - vector[0]*vector[3]);
+    aConst(0,2) = 2*(vector[1]*vector[3] + vector[0]*vector[2]);
 
-    aConst.access(1,0) = 2*(vector[1]*vector[2] + vector[0]*vector[3]);
-    aConst.access(1,1) = vector[0]*vector[0] - vector[1]*vector[1] + vector[2]*vector[2] - vector[3]*vector[3];
-    aConst.access(1,2) = 2*(vector[2]*vector[3] - vector[0]*vector[1]);
+    aConst(1,0) = 2*(vector[1]*vector[2] + vector[0]*vector[3]);
+    aConst(1,1) = vector[0]*vector[0] - vector[1]*vector[1] + vector[2]*vector[2] - vector[3]*vector[3];
+    aConst(1,2) = 2*(vector[2]*vector[3] - vector[0]*vector[1]);
 
-    aConst.access(2,0) = 2*(vector[1]*vector[3] - vector[0]*vector[2]);
-    aConst.access(2,1) = 2*(vector[2]*vector[3] + vector[0]*vector[1]);
-    aConst.access(2,2) = vector[0]*vector[0] - vector[1]*vector[1] - vector[2]*vector[2] + vector[3]*vector[3];
+    aConst(2,0) = 2*(vector[1]*vector[3] - vector[0]*vector[2]);
+    aConst(2,1) = 2*(vector[2]*vector[3] + vector[0]*vector[1]);
+    aConst(2,2) = vector[0]*vector[0] - vector[1]*vector[1] - vector[2]*vector[2] + vector[3]*vector[3];
 }
 
 Quaternion &Quaternion::operator*(Quaternion const &aConst) {

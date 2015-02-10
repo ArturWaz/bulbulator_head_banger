@@ -65,6 +65,7 @@ struct Packet {
     void coutPacket(const char*string)const;
     void convertToChar(char*pointer)const;
     bool compareToString (const char *string, int numberOfCharacters)const;
+    inline uint8_t operator[](int i) const { return packet[i]; }
 };
 
 
@@ -85,8 +86,8 @@ class UM7_LT: private PortCOM {
     friend void readData(UM7_LT*);
     friend void parseDataPackets(UM7_LT*);
 
-    void parseNMEApacket(const Packet &packet);
-    void parseBinaryPacket(const Packet &packet);
+    void parseNMEApacket(const Packet &);
+    void parseBinaryPacket(const Packet &);
 
 public:
 

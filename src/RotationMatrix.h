@@ -28,8 +28,16 @@ public:
     inline const double&operator[](int i) const { return matrixPointer[i]; }
     inline double&operator[](int i) { return matrixPointer[i]; }
 
-    inline const double&access(int i, int j) const { return matrix[i][j]; }
-    inline double&access(int i, int j) { return matrix[i][j]; }
+    inline const double&operator()(int i, int j) const { return matrix[i][j]; }
+    inline double&operator()(int i, int j) { return matrix[i][j]; }
+
+    RotationMatrix operator*(const RotationMatrix&);
+
+    void xRotation(const double&angle);
+    void yRotation(const double&angle);
+    void zRotation(const double&angle);
+
+
 
 };
 

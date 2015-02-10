@@ -42,7 +42,7 @@ void readData(UM7_LT *um7_lt) {
                     PacketQueueMutex.lock();
                     packets.push(packet);
                     PacketQueueMutex.unlock();
-//                    packet.coutPacket("Read data: ");
+                    packet.coutPacket("Read data: ");
                     packetPose = 0;
                 }
                 packet.packet[packetPose++] = ch[i];
@@ -73,7 +73,7 @@ void parseDataPackets(UM7_LT *um7_lt) {
             um7_lt->parseNMEApacket(packet);
         }
         else if (packet.compareToString("snp", 3)){
-            // todo Binary packets parser
+            um7_lt->parseBinaryPacket(packet);
         }
         else {
             if (packet.packet[0] != '\n') ERROR_COM(um7_lt->getPortNumber(), "Could not recognize the packet type.");
@@ -89,7 +89,7 @@ void parseDataPackets(UM7_LT *um7_lt) {
 
 void Packet::coutPacket(const char*string)const{
     std::cout << string;
-    for (int i = 0; packet[i] != '\n' && i < packet.size(); ++i) {
+    for (int i = 0; (packet[i] != 0 || packet[i] != '\n') && i < packet.size(); ++i) {
         std::cout << (char) packet[i];
     }
     std::cout << std::endl;
@@ -197,12 +197,12 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
                 clear = false;
         }
 
-        std::cout << "Accelerometer: " << std::fixed << std::setprecision(4) << accelerometer.getTime() << ',' << accelerometer.getAx() << "," << accelerometer.getAy() << "," << accelerometer.getAz() << ", " << std::hex << (int) calculatedChecksum << std::dec << std::endl;
-
-        if (!quaternionList.empty()) {
-            accelerometer.eleminitateGravity(quaternionList.front());
-            std::cout << "Without gravi: " << std::fixed << std::setprecision(4) << accelerometer.getTime() << ',' << accelerometer.getAx() << "," << accelerometer.getAy() << "," << accelerometer.getAz() << ", " << std::hex << (int) calculatedChecksum << std::dec << std::endl;
-        }
+//        std::cout << "Accelerometer: " << std::fixed << std::setprecision(4) << accelerometer.getTime() << ',' << accelerometer.getAx() << "," << accelerometer.getAy() << "," << accelerometer.getAz() << ", " << std::hex << (int) calculatedChecksum << std::dec << std::endl;
+//
+//        if (!eulerList.empty()) {
+//            accelerometer.eleminitateGravity(eulerList.front());
+//            std::cout << "Without gravi: " << std::fixed << std::setprecision(4) << accelerometer.getTime() << ',' << accelerometer.getAx() << "," << accelerometer.getAy() << "," << accelerometer.getAz() << ", " << std::hex << (int) calculatedChecksum << std::dec << std::endl;
+//        }
 
         accelerometerListMutex.lock();
         accelerometerList.push_back(accelerometer);
@@ -246,13 +246,28 @@ void UM7_LT::parseNMEApacket(const Packet &packet) {
 
 
 
+void UM7_LT::parseBinaryPacket(const Packet &packet) {
+//    if (packet[3]&0x80) std::cout<<"no data\n";
+//    else std::cout<<"some data\n";
+}
+
+
+
+
+
 
 void Accelerometer::eleminitateGravity(EulerAnglesTime aConst){ // todo doesnt work
     RotationMatrix rotationMatrix;
-    aConst.setPhi(-1*aConst.getPhi());
-    aConst.setPsi(-1*aConst.getPsi());
-    aConst.setTheta(-1*aConst.getTheta());
-    aConst.toRotationMatrix(rotationMatrix);
+    RotationMatrix R_I_v1;
+    RotationMatrix R_v1_v2;
+    RotationMatrix R_v2_B;
+
+    R_I_v1.xRotation(-1*aConst.getPsi());
+    R_v1_v2.yRotation(-1*aConst.getTheta());
+    R_v2_B.zRotation(-1*aConst.getPhi());
+
+    rotationMatrix = R_I_v1*R_v1_v2;
+    rotationMatrix = rotationMatrix*R_v2_B;
 
     double x, y, z;
     x = ax*rotationMatrix[0] + ay*rotationMatrix[1] + az*rotationMatrix[2];

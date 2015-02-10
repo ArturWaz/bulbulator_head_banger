@@ -47,24 +47,34 @@ void threadTest2(int nb){
 
 int main(){
 
-//    printf("sdf");
-    UM7_LT test(16);
+    UM7_LT test(4);
     test.threadedReading();
     while(true);
 
-//    printf("hello");
-//    printf("\r          ");
-//    printf("\rbye %.6f",67.0);
 
-//    EulerAngles euler;
+
 //    RotationMatrix rot;
+//    RotationMatrix rot1;
+//    RotationMatrix rot2;
 //
-//    euler.toRotationMatrix(rot);
 //
+//    for (int i = 0; i < 9; ++i) {
+//        rot1[i] = i;
+//        rot2[i] = i;
+//    }
+//
+//    rot = rot1*rot2;
 //
 //    for (int i = 0; i < 9; ++i) {
 //        cout<<rot[i]<<'\t';
 //        if (!((i+1)%3)) cout << endl;
+//    }
+//    cout << endl;
+//    for (int i = 0; i < 3; ++i) {
+//        for (int j = 0; j < 3; ++j) {
+//            cout<<rot(i,j)<<'\t';
+//        }
+//        cout << endl;
 //    }
 
 
