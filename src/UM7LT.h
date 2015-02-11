@@ -62,6 +62,7 @@ public:
 
 struct Packet {
     std::array<uint8_t,256> packet;
+    int packetLength;
     void coutPacket(const char*string)const;
     void convertToChar(char*pointer)const;
     bool compareToString (const char *string, int numberOfCharacters)const;
