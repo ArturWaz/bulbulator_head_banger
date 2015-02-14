@@ -29,16 +29,17 @@ std::mutex PacketQueueMutex;
 
 void readData(UM7_LT *um7_lt) {
 
-    int packetPose;
+    int packetPose = 0;
     Packet packet;
     packet.packet[0] = '\n';
 
     while (true) {
         try {
             uint8_t ch[128] = {0};
-            int read = um7_lt->PortCOM::readBlock(ch, 128);
+            int read = um7_lt->PortCOM::readBlock(ch, 128);   //todo problem with high speed transmission
             for (int i = 0; i < read; ++i) {
-                if ((ch[i] == '$' && ch[i+1] == 'P' && ch[i+2] == 'C') || (ch[i] == 's' && ch[i+1] == 'n' && ch[i+2] == 'p')){
+                if (ch[i] == 's' && ch[i+1] == 'n' && ch[i+2] == 'p'){
+//                    std::cout<<packetPose<<std::endl;
                     packet.packetLength = packetPose;
                     PacketQueueMutex.lock();
                     packets.push(packet);
@@ -46,7 +47,17 @@ void readData(UM7_LT *um7_lt) {
 //                    packet.coutPacket("Read data: ");
                     packetPose = 0;
                 }
+                else if (ch[i] == '$' && ch[i+1] == 'P' && ch[i+2] == 'C'){ // NMEA packet
+                    packet.packetLength = packetPose;
+                    PacketQueueMutex.lock();
+                    packets.push(packet);
+                    PacketQueueMutex.unlock();
+//                    packet.coutPacket("Read data: ");
+                    packetPose = 0;
+                }
+                if (packetPose >= 256) packetPose = 0;
                 packet.packet[packetPose++] = ch[i];
+
             }
         } catch (bool e) {}
     }
@@ -254,6 +265,7 @@ void UM7_LT::parseBinaryPacket(const Packet &packet) {
     else if (!(packet[3]&0x40)) dataLength = 4;
     else dataLength = packet[3]&0x3C;
     if (dataLength+7 != packet.packetLength){
+        std::cerr << "calculated length: " << dataLength+7 << ", packet length: " << packet.packetLength << std::endl;
         ERROR_COM(PortCOM::getPortNumber(), "Calculated data length and read packet length are different.");
         return;
     }
@@ -278,8 +290,9 @@ void UM7_LT::parseBinaryPacket(const Packet &packet) {
     FloatIntUnion convertIF;
     uIntIntUnion convertuII;
 
+    const double pi = 3.1415926535897932384626433832795028841971693993751058;
+
     if (packet[4] == 0x70){ // packet contains euler angles and angles rates with time
-        const double pi = 3.1415926535897932384626433832795028841971693993751058;
         EulerAnglesTime eulerAnglesTime;
 
         convertuII.ui = (packet[5]<<8) | packet[6];
@@ -350,13 +363,13 @@ void UM7_LT::parseBinaryPacket(const Packet &packet) {
         convertIF.ui = (packet[17]<<24) | (packet[18]<<16) | (packet[19]<<8) | packet[20];
         accelerometer.setTime(double(convertIF.f));
 
-        //std::cout << "Binary accelerometer: " << std::fixed << std::setprecision(4) << accelerometer.getTime() << ",\t" << accelerometer.getAx() << ",  \t" << accelerometer.getAy() << ",  \t" << accelerometer.getAz()  << std::endl;
-        std::cout << "Accelerometer norm: " << sqrt(accelerometer.getAx()*accelerometer.getAx() + accelerometer.getAy()*accelerometer.getAy() + accelerometer.getAz()*accelerometer.getAz()) << std::endl;
+        std::cout << "Binary accelerometer: " << std::fixed << std::setprecision(4) << accelerometer.getTime() << ",\t" << accelerometer.getAx() << ",  \t" << accelerometer.getAy() << ",  \t" << accelerometer.getAz()  << std::endl;
+//        std::cout << "Accelerometer norm: " << sqrt(accelerometer.getAx()*accelerometer.getAx() + accelerometer.getAy()*accelerometer.getAy() + accelerometer.getAz()*accelerometer.getAz()) << std::endl;
 
-//        if (!eulerList.empty()) {
-//            accelerometer.eleminitateGravity(eulerList.front());
-//            std::cout << "Without gravi:        " << std::fixed << std::setprecision(4) << accelerometer.getTime() << ",\t" << accelerometer.getAx() << ",  \t" << accelerometer.getAy() << ",  \t" << accelerometer.getAz() << std::endl;
-//        }
+        if (!eulerList.empty()) {
+            accelerometer.eleminitateGravity(eulerList.front());
+            std::cout << "Without gravi:        " << std::fixed << std::setprecision(4) << accelerometer.getTime() << ",\t" << accelerometer.getAx() << ",  \t" << accelerometer.getAy() << ",  \t" << accelerometer.getAz() << std::endl;
+        }
 
         bool clear = false;
         if (accelerometerList.size()) {
@@ -371,6 +384,38 @@ void UM7_LT::parseBinaryPacket(const Packet &packet) {
         accelerometerListMutex.unlock();
         return;
     }
+    if (packet[4] == 0x61){ // read processed gyroscope data
+        Gyroscope gyroscope;
+
+        convertIF.ui = (packet[5]<<24) | (packet[6]<<16) | (packet[7]<<8) | packet[8];
+        gyroscope.setGx((double(convertuII.i)*pi) / 360);
+        convertIF.ui = (packet[9]<<24) | (packet[10]<<16) | (packet[11]<<8) | packet[12];
+        gyroscope.setGy((double(convertuII.i)*pi) / 360);
+        convertIF.ui = (packet[13]<<24) | (packet[14]<<16) | (packet[15]<<8) | packet[16];
+        gyroscope.setGz((double(convertuII.i)*pi) / 360);
+        convertIF.ui = (packet[17]<<24) | (packet[18]<<16) | (packet[19]<<8) | packet[20];
+        gyroscope.setTime(double(convertIF.f));
+
+        //std::cout << "Binary gyroscope:     " << std::fixed << std::setprecision(4) << accelerometer.getTime() << ",\t" << accelerometer.getAx() << ",  \t" << accelerometer.getAy() << ",  \t" << accelerometer.getAz()  << std::endl;
+
+//        if (!eulerList.empty()) {
+//            accelerometer.eleminitateGravity(eulerList.front());
+//            std::cout << "Without gravi:        " << std::fixed << std::setprecision(4) << accelerometer.getTime() << ",\t" << accelerometer.getAx() << ",  \t" << accelerometer.getAy() << ",  \t" << accelerometer.getAz() << std::endl;
+//        }
+
+        bool clear = false;
+        if (gyroList.size()) {
+            clear = true;
+            if ((gyroscope.getTime() - gyroList.front().getTime()) < timeFrame)
+                clear = false;
+        }
+
+        gyroListMutex.lock();
+        gyroList.push_back(gyroscope);
+        if (clear) gyroList.pop_front();
+        gyroListMutex.unlock();
+        return;
+    }
 }
 
 
@@ -380,10 +425,6 @@ void UM7_LT::parseBinaryPacket(const Packet &packet) {
 
 void Accelerometer::eleminitateGravity(EulerAnglesTime aConst){ // todo doesnt work
 
-//    aConst.setPsi((aConst.getPsi()*PI)/360.0);
-//    aConst.setTheta((aConst.getTheta()*PI)/360.0);
-//    aConst.setPhi((aConst.getPhi()*PI)/360.0);
-
     RotationMatrix rotationMatrix;
     RotationMatrix R_I_v1;
     RotationMatrix R_v1_v2;
@@ -391,7 +432,7 @@ void Accelerometer::eleminitateGravity(EulerAnglesTime aConst){ // todo doesnt w
 
     R_I_v1.xRotation(-1*aConst.getPsi());
     R_v1_v2.yRotation(-1*aConst.getTheta());
-    R_v2_B.zRotation(-1*aConst.getPhi());
+    R_v2_B.zRotation(0);//-1*aConst.getPhi());
 
     rotationMatrix = R_I_v1*R_v1_v2;
     rotationMatrix = rotationMatrix*R_v2_B;

@@ -60,6 +60,25 @@ public:
     void eleminitateGravity(QuaternionTime);
 };
 
+class Gyroscope {
+    double gx;
+    double gy;
+    double gz;
+    double time;
+public:
+    inline double getGx() const { return gx; }
+    inline void setGx(const double& ax) { Gyroscope::gx = ax; }
+
+    inline double getGy() const { return gy; }
+    inline void setGy(const double& ay) { Gyroscope::gy = ay; }
+
+    inline double getGz() const { return gz; }
+    inline void setGz(const double& az) { Gyroscope::gz = az; }
+
+    inline double getTime() const { return time; }
+    inline void setTime(const double& time) { Gyroscope::time = time; }
+};
+
 struct Packet {
     std::array<uint8_t,256> packet;
     int packetLength;
@@ -82,6 +101,8 @@ class UM7_LT: private PortCOM {
     std::mutex quaternionListMutex;
     std::list<Accelerometer> accelerometerList;
     std::mutex accelerometerListMutex;
+    std::list<Gyroscope> gyroList;
+    std::mutex gyroListMutex;
     double timeFrame;
 
     friend void readData(UM7_LT*);

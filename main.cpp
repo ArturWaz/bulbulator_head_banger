@@ -45,23 +45,12 @@ void threadTest2(int nb){
 }
 
 
-union convert {
-    float f;
-    uint32_t i;
-};
-
 
 int main(){
 
-//    convert c;
-//    c.f = 1;
-//
-//    cout<<hex<<c.i<<endl;
 
 
-
-
-    UM7_LT test(4);
+    UM7_LT test(16);
     test.threadedReading();
     while(true);
 
