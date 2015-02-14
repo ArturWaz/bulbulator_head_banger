@@ -7,16 +7,37 @@
 
 
 #include <iostream>
-#include <thread>
-#include <mutex>
-#include "queue"
-#include "DefineFunctions.h"
+#include <UM7_LT.h>
 
 using namespace std;
+
+void test(int d){}
 
 
 int main(){
 
+
+
+
+
+
+
+    // todo check the vector class
+
+
+
+
+
+
+
+//    UM7_LT test(16);
+//
+//    UM7_LT_packet lol;
+//
+//    test.turnOnThreadedRead();
+//    while (true){
+//        test.takeLastPacket(lol);
+//    }
 
     return 0;
 }
