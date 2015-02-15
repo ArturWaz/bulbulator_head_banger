@@ -67,7 +67,7 @@ public:
     Vector<Type> operator+(Vector<Type> const &v){
         if (length != v.length) throw -2;
         Vector<Type> vector(*this);
-        for (int i = 0; i < length; ++i)
+        for (unsigned int i = 0; i < length; ++i)
             vector.table[i] += v.table[i];
         return vector;
     }
@@ -75,47 +75,47 @@ public:
     Vector<Type> operator-(Vector<Type> const &v){
         if (length != v.length) throw -2;
         Vector<Type> vector(*this);
-        for (int i = 0; i < length; ++i)
+        for (unsigned int i = 0; i < length; ++i)
             vector.table[i] -= v.table[i];
         return vector;
     }
 
     Vector<Type> operator*(Type const &v){
         Vector<Type> vector(*this);
-        for (int i = 0; i < length; ++i)
+        for (unsigned int i = 0; i < length; ++i)
             vector.table[i] *= v;
         return vector;
     }
 
     Vector<Type> operator/(Type const &v){
         Vector<Type> vector(*this);
-        for (int i = 0; i < length; ++i)
+        for (unsigned int i = 0; i < length; ++i)
             vector.table[i] /= v;
         return vector;
     }
 
     Vector<Type> const &operator+=(Vector<Type> const &v){
         if (length != v.length) throw -2;
-        for (int i = 0; i < length; ++i)
+        for (unsigned int i = 0; i < length; ++i)
             table[i] += v.table[i];
         return *this;
     }
 
     Vector<Type> const &operator-=(Vector<Type> const &v){
         if (length != v.length) throw -2;
-        for (int i = 0; i < length; ++i)
+        for (unsigned int i = 0; i < length; ++i)
             table[i] -= v.table[i];
         return *this;
     }
 
     Vector<Type> const &operator*=(Type const &v){
-        for (int i = 0; i < length; ++i)
+        for (unsigned int i = 0; i < length; ++i)
             table[i] *= v;
         return *this;
     }
 
     Vector<Type> const &operator/=(Type const &v){
-        for (int i = 0; i < length; ++i)
+        for (unsigned int i = 0; i < length; ++i)
             table[i] /= v;
         return *this;
     }
