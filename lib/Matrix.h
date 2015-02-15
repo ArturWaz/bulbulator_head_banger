@@ -122,7 +122,7 @@ public:
         return *this;
     }
 
-    Matrix<Type> operator*=(Matrix<Type> const &m) {
+    Matrix<Type> const &operator*=(Matrix<Type> const &m) {
         if (columns != m.rows) throw -2;
         Matrix<Type> matrix(rows,m.columns);
         for (unsigned int i = 0; i < matrix.rows; ++i)
@@ -148,7 +148,7 @@ public:
     }
 
 
-    Matrix<Type> operator+(Matrix<Type> const &m) {
+    Matrix<Type> operator+(Matrix<Type> const &m) const {
         if (rows != m.rows || columns != m.columns) throw -2;
         Matrix<Type> matrix(*this);
         for (unsigned int i = 0; i < rows; ++i)
@@ -157,7 +157,7 @@ public:
         return matrix;
     }
 
-    Matrix<Type> operator-(Matrix<Type> const &m) {
+    Matrix<Type> operator-(Matrix<Type> const &m) const {
         if (rows != m.rows || columns != m.columns) throw -2;
         Matrix<Type> matrix(*this);
         for (unsigned int i = 0; i < rows; ++i)
@@ -166,7 +166,7 @@ public:
         return matrix;
     }
 
-    Matrix<Type> operator*(Matrix<Type> const &m) {
+    Matrix<Type> operator*(Matrix<Type> const &m) const {
         if (columns != m.rows) throw -2;
         Matrix<Type> matrix(rows,m.columns);
         for (unsigned int i = 0; i < matrix.rows; ++i)
@@ -176,7 +176,7 @@ public:
         return matrix;
     }
 
-    Matrix<Type> operator*(Type const &m) {
+    Matrix<Type> operator*(Type const &m) const {
         Matrix<Type> matrix(*this);
         for (unsigned int i = 0; i < rows; ++i)
             for (unsigned int j = 0; j < columns; ++j)
@@ -184,7 +184,7 @@ public:
         return matrix;
     }
 
-    Matrix<Type> operator/(Type const &m) {
+    Matrix<Type> operator/(Type const &m) const {
         Matrix<Type> matrix(*this);
         for (unsigned int i = 0; i < rows; ++i)
             for (unsigned int j = 0; j < columns; ++j)
