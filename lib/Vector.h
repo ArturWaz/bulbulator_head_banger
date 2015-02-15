@@ -10,6 +10,7 @@
 #define Vector_H_
 
 #include <cstring>
+#include <cstdlib>
 #include "myMath.h"
 
 
@@ -23,19 +24,21 @@ protected:
 
 public:
 
-    inline Vector(unsigned int length): length(length), isVertical(true) { table = new Type[length]; }
+    inline Vector(unsigned int length): length(length), isVertical(true) {
+        table = (Type*)calloc(length,sizeof(Type));
+        if (table == NULL) throw -1;
+    }
     inline Vector(const Vector<Type> &v): length(v.length), isVertical(v.isVertical) {
-        table = new Type[length];
+        table = (Type*)malloc(length*sizeof(Type));
+        if (table == NULL) throw -1;
         memcpy(table,v.table,length*sizeof(Type));
     }
-    Vector<Type> const &operator=(const Vector<Type> &v) {
-        if (length != v.length) throw -1;
-        length = v.length;
-        isVertical = v.isVertical;
+    inline Vector<Type> const &operator=(const Vector<Type> &v) {
+        if (length != v.length || isVertical != v.isVertical) throw -2;
         memcpy(table,v.table,length*sizeof(Type));
         return *this;
     }
-    inline ~Vector() { delete []table; }
+    inline ~Vector() { free(table); }
 
 
     inline unsigned int getLength() const { return length; }
@@ -62,7 +65,7 @@ public:
     inline Type &operator()(unsigned int i) { return table[i]; }
 
     Vector<Type> operator+(Vector<Type> const &v){
-        if (length != v.length) throw -1;
+        if (length != v.length) throw -2;
         Vector<Type> vector(*this);
         for (int i = 0; i < length; ++i)
             vector.table[i] += v.table[i];
@@ -70,7 +73,7 @@ public:
     }
 
     Vector<Type> operator-(Vector<Type> const &v){
-        if (length != v.length) throw -1;
+        if (length != v.length) throw -2;
         Vector<Type> vector(*this);
         for (int i = 0; i < length; ++i)
             vector.table[i] -= v.table[i];
@@ -92,14 +95,14 @@ public:
     }
 
     Vector<Type> const &operator+=(Vector<Type> const &v){
-        if (length != v.length) throw -1;
+        if (length != v.length) throw -2;
         for (int i = 0; i < length; ++i)
             table[i] += v.table[i];
         return *this;
     }
 
     Vector<Type> const &operator-=(Vector<Type> const &v){
-        if (length != v.length) throw -1;
+        if (length != v.length) throw -2;
         for (int i = 0; i < length; ++i)
             table[i] -= v.table[i];
         return *this;
