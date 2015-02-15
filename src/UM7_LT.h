@@ -10,7 +10,7 @@
 #define UM7_LT_H_
 
 
-#include <PortCOM.h>
+#include <com/PortCOM.h>
 #include <thread>
 #include <mutex>
 #include <queue>

@@ -8,7 +8,7 @@ SET( PROJ_OUT_PATH ${CMAKE_BINARY_DIR} )
 # Section for project specific settings
 
 SET( PROJ_NAME "bulbulator" )
-SET( PROJ_LIBRARIES "Ws2_32" "${PROJ_PATH}/lib/emotiv/edk.dll" )
+SET( PROJ_LIBRARIES )
 SET( PROJ_INCLUDES "src" "lib" )
 FILE( GLOB_RECURSE PROJ_HEADERS src/*.h lib/*.h lib/com/*.h )
 FILE( GLOB_RECURSE PROJ_SOURCES main.cpp src/*.cpp lib/*.cpp lib/com/*.c )
