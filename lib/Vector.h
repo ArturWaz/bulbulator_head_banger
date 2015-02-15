@@ -15,6 +15,7 @@
 
 
 template <class Type> class Vector {
+protected:
 
     Type *table;
     unsigned int length;
@@ -27,7 +28,7 @@ public:
         table = new Type[length];
         memcpy(table,v.table,length*sizeof(Type));
     }
-    Vector const &operator=(const Vector<Type> &v) {
+    Vector<Type> const &operator=(const Vector<Type> &v) {
         if (length != v.length) throw -1;
         length = v.length;
         isVertical = v.isVertical;
@@ -41,76 +42,76 @@ public:
     inline unsigned int getNumberOfRows() const { return isVertical?length:1; }
     inline unsigned int getNumberOfColumns() const { return isVertical?1:length; }
 
-    inline Vector const &transpose() { isVertical = !isVertical; return *this; }
+    inline Vector<Type> const &transpose() { isVertical = !isVertical; return *this; }
     Type norm() const {
         Type norm(0);
         for (int i = 0; i < length; ++i) norm += table[i]*table[i];
         return sqrt(norm);
     }
 
-    inline Type const &operator[](unsigned int i) const { return table[i]; }
-    inline Type &operator[](unsigned int i) { return table[i]; }
-
-    inline Type const &operator()(unsigned int i) const {
+    inline Type const &operator[](unsigned int i) const {
         if (i >= length) throw -2;
         return table[i];
     }
-    inline Type &operator()(unsigned int i) {
+    inline Type &operator[](unsigned int i) {
         if (i >= length) throw -2;
         return table[i];
     }
 
-    Vector operator+(Vector<Type> const &v){
+    inline Type const &operator()(unsigned int i) const { return table[i]; }
+    inline Type &operator()(unsigned int i) { return table[i]; }
+
+    Vector<Type> operator+(Vector<Type> const &v){
         if (length != v.length) throw -1;
-        Vector vector(*this);
+        Vector<Type> vector(*this);
         for (int i = 0; i < length; ++i)
             vector.table[i] += v.table[i];
         return vector;
     }
 
-    Vector operator-(Vector<Type> const &v){
+    Vector<Type> operator-(Vector<Type> const &v){
         if (length != v.length) throw -1;
-        Vector vector(*this);
+        Vector<Type> vector(*this);
         for (int i = 0; i < length; ++i)
             vector.table[i] -= v.table[i];
         return vector;
     }
 
-    Vector operator*(Type const &v){
-        Vector vector(*this);
+    Vector<Type> operator*(Type const &v){
+        Vector<Type> vector(*this);
         for (int i = 0; i < length; ++i)
             vector.table[i] *= v;
         return vector;
     }
 
-    Vector operator/(Type const &v){
-        Vector vector(*this);
+    Vector<Type> operator/(Type const &v){
+        Vector<Type> vector(*this);
         for (int i = 0; i < length; ++i)
             vector.table[i] /= v;
         return vector;
     }
 
-    Vector const &operator+=(Vector<Type> const &v){
+    Vector<Type> const &operator+=(Vector<Type> const &v){
         if (length != v.length) throw -1;
         for (int i = 0; i < length; ++i)
             table[i] += v.table[i];
         return *this;
     }
 
-    Vector const &operator-=(Vector<Type> const &v){
+    Vector<Type> const &operator-=(Vector<Type> const &v){
         if (length != v.length) throw -1;
         for (int i = 0; i < length; ++i)
             table[i] -= v.table[i];
         return *this;
     }
 
-    Vector const &operator*=(Type const &v){
+    Vector<Type> const &operator*=(Type const &v){
         for (int i = 0; i < length; ++i)
             table[i] *= v;
         return *this;
     }
 
-    Vector const &operator/=(Type const &v){
+    Vector<Type> const &operator/=(Type const &v){
         for (int i = 0; i < length; ++i)
             table[i] /= v;
         return *this;
