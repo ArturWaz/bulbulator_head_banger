@@ -10,6 +10,7 @@
 #define Vector_H_
 
 #include <cstring>
+#include "myMath.h"
 
 
 
@@ -41,6 +42,11 @@ public:
     inline unsigned int getNumberOfColumns() const { return isVertical?1:length; }
 
     inline Vector const &transpose() { isVertical = !isVertical; return *this; }
+    Type norm() const {
+        Type norm(0);
+        for (int i = 0; i < length; ++i) norm += table[i]*table[i];
+        return sqrt(norm);
+    }
 
     inline Type const &operator[](unsigned int i) const { return table[i]; }
     inline Type &operator[](unsigned int i) { return table[i]; }

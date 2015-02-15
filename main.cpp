@@ -24,9 +24,9 @@ int main(){
 
     Vector<double> v(3);
 
-    v[0] = 56;
-    v[1] = 34;
-    v[2] = 89;
+    v[0] = 56.0;
+    v[1] = 34.0;
+    v[2] = 89.0;
     test(v);
 
     Vector<double> v1(3);
@@ -38,6 +38,8 @@ int main(){
 
     v1 = v1/2;
     test(v1);
+
+    cout<<v1.norm();
 
 //    UM7_LT test(16);
 //
