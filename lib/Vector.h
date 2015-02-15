@@ -40,10 +40,11 @@ public:
     }
     inline ~Vector() { free(table); }
 
+    Type *tablePtr() const { return table; }
 
     inline unsigned int getLength() const { return length; }
-    inline unsigned int getNumberOfRows() const { return isVertical?length:1; }
-    inline unsigned int getNumberOfColumns() const { return isVertical?1:length; }
+    inline unsigned int getRows() const { return isVertical?length:1; }
+    inline unsigned int getColumns() const { return isVertical?1:length; }
 
     inline Vector<Type> const &transpose() { isVertical = !isVertical; return *this; }
     Type norm() const {
@@ -119,6 +120,7 @@ public:
             table[i] /= v;
         return *this;
     }
+
 };
 
 #endif //__Vector_H_

@@ -12,6 +12,7 @@
 
 #include <cstring>
 #include <cstdlib>
+#include "Vector.h"
 #include "myMath.h"
 
 
@@ -65,6 +66,14 @@ public:
         memcpy(ptrTable,m.ptrTable,rows*columns*sizeof(Type));
         for (unsigned int i = 0; i < rows; ++i)
             table[i] = &ptrTable[i*columns];
+    }
+    Matrix(Vector<Type> const &v): rows(v.getRows()), columns(v.getColumns()) {
+        ptrTable = (Type*)malloc(v.getLength()*sizeof(Type));
+        table = (Type**)malloc(rows*sizeof(Type*));
+        if (ptrTable == NULL || table == NULL) throw -1;
+        for (unsigned int i = 0; i < rows; ++i)
+            table[i] = &ptrTable[i*columns];
+        memcpy(ptrTable,v.tablePtr(),v.getLength()*sizeof(Type));
     }
     ~Matrix() {
         free(ptrTable);
