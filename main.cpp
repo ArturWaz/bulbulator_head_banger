@@ -11,13 +11,17 @@
 #include <Vector.h>
 #include <Matrix.h>
 #include <DefineFunctions.h>
+#include <RotationMatrix.h>
+#include <UM7LT.h>
 
 using namespace std;
 
 template <typename T>
 void test(Vector<T> &v){
-    cout << v[0] << ", " << v[1] << ", " << v[2] << endl;
-    cout << v.getRows() << ", " << v.getColumns() << endl << endl;
+    for (int i = 0; i < v.getLength(); ++i)
+        cout << v[i] << ", ";
+    cout << endl;
+//    cout << v.getRows() << ", " << v.getColumns() << endl << endl;
 }
 
 template <typename T>
@@ -39,23 +43,37 @@ void test(UM7_LT_packet const &p){
     cout << dec << endl;
 }
 
+
+
+
 int main(){
 
 
+    UM7LT imu(4);
 
+    imu.turnOnThreadedRead();
 
-    _base_UM7LT um7(4);
+    while(true) {
 
-    UM7_LT_packet lol;
-
-    um7.turnOnThreadedRead();
-    int i = 0;
-    while (true){
-        if (um7.takeLastPacket(lol)){
-            test(lol);
-            free(lol.data);
+        LastAcquiredData inf = imu.getNewData();
+        if (inf == EULER) {
+            cout << imu.eulerAngles.back().time() << ":   \t";
+            test(imu.eulerAngles.back());
+        }
+        else if (inf == QUAT) {
+            cout << imu.quaternions.back().time() << ":   \t";
+            test(imu.quaternions.back());
+        }
+        else if (inf == ACC) {
+            cout << imu.accelerometer.back().time() << ":   \t";
+            test(imu.accelerometer.back());
+        }
+        else if (inf == GYRO) {
+            cout << imu.gyroscope.back().time() << ":   \t";
+            test(imu.gyroscope.back());
         }
     }
+
 
     return 0;
 }

@@ -55,7 +55,7 @@ public:
 
     void sendPacket(uint8_t packetType, const UM7_LT_packet &)const;
 
-    bool takeLastPacket(UM7_LT_packet &);
+    bool getLastPacket(UM7_LT_packet &);
 
 };
 

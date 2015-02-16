@@ -12,7 +12,7 @@
 using namespace std;
 
 
-#define UM7_LT_BUFFER uint8_t(250)
+#define UM7_LT_BUFFER 5000
 
 
 
@@ -38,13 +38,13 @@ void showPacket_UM7_LT(UM7_LT_packet const &p){
 
 void dataReader(_base_UM7LT *um7_lt) {
     UM7_LT_packet packet;
-    uint8_t data[UM7_LT_BUFFER];
+    uint8_t data[250];
     uint8_t packetIndex = 0;
     uint8_t tempPacket[80] = {0};
     int dataLength = 0;
     int read;
     while (um7_lt->readData){
-        read = um7_lt->PortCOM::readBlock(data, UM7_LT_BUFFER);
+        read = um7_lt->PortCOM::readBlock(data, 250);
 
         for (int i = 0; i < read; ++i) {
 
@@ -65,9 +65,14 @@ void dataReader(_base_UM7LT *um7_lt) {
                     packet.address = tempPacket[4];
                     packet.length = uint8_t(dataLength - 7);
                     packet.data = (uint8_t*) malloc(packet.length*sizeof(uint8_t));
-                    memcpy(packet.data,tempPacket,packet.length*sizeof(uint8_t));
+//                    uint8_t *dataBegin = &(tempPacket[5]);
+                    memcpy(packet.data,&(tempPacket[5]),packet.length*sizeof(uint8_t));
 //                    showPacket_UM7_LT(packet);
                     um7_lt->readThreadMutex.lock();
+                    if (um7_lt->packets.size() > UM7_LT_BUFFER) {
+                        free(um7_lt->packets.front().data);
+                        um7_lt->packets.pop();
+                    }
                     um7_lt->packets.push(packet);
                     um7_lt->readThreadMutex.unlock();
                     packet.data = NULL;
@@ -113,7 +118,7 @@ void _base_UM7LT::sendPacket(uint8_t packetType, UM7_LT_packet const &aConst) co
     tmpPacket[aConst.length+6] = uint8_t(checksum);
 }
 
-bool _base_UM7LT::takeLastPacket(UM7_LT_packet &packet) {
+bool _base_UM7LT::getLastPacket(UM7_LT_packet &packet) {
     readThreadMutex.lock();
     if (packets.empty()){
         readThreadMutex.unlock();
