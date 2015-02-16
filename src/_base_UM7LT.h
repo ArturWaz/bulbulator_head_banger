@@ -53,7 +53,7 @@ public:
     void turnOnThreadedRead();
     void turnOffThreadedRead();
 
-    void sendPacket(const UM7_LT_packet &)const;
+    void sendPacket(uint8_t packetType, const UM7_LT_packet &)const;
 
     bool takeLastPacket(UM7_LT_packet &);
 

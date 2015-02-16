@@ -98,8 +98,19 @@ void _base_UM7LT::turnOffThreadedRead() {
     readThread.join();
 }
 
-void _base_UM7LT::sendPacket(UM7_LT_packet const &aConst) const {
-
+void _base_UM7LT::sendPacket(uint8_t packetType, UM7_LT_packet const &aConst) const {
+    if (!aConst.length) return;
+    uint8_t tmpPacket[7+aConst.length];
+    uint16_t checksum = 0;
+    tmpPacket[0] = 's'; tmpPacket[1] = 'n'; tmpPacket[2] = 'p';
+    tmpPacket[3] = packetType;
+    tmpPacket[4] = aConst.address;
+    for (int i = 0; i < aConst.length+7; ++i) {
+        if (i > 4) tmpPacket[i] = aConst.data[i - 5];
+        checksum += tmpPacket[i];
+    }
+    tmpPacket[aConst.length+5] = uint8_t(checksum>>8);
+    tmpPacket[aConst.length+6] = uint8_t(checksum);
 }
 
 bool _base_UM7LT::takeLastPacket(UM7_LT_packet &packet) {
