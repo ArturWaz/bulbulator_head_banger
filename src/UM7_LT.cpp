@@ -9,6 +9,8 @@
 #include <DefineFunctions.h>
 #include "UM7_LT.h"
 
+using namespace std;
+
 
 #define UM7_LT_BUFFER uint8_t(250)
 
@@ -25,8 +27,13 @@ UM7_LT::UM7_LT(int portNumber, int baudrate): PortCOM(portNumber,baudrate), read
 UM7_LT::~UM7_LT() {}
 
 
-
-//#define UM7_LT_DATA_READER_FUNCION \
+void showPacket(UM7_LT_packet const &p){
+    cout << "read:   " << hex;
+    for (int i = 0; i < p.length; ++i) {
+        cout << " " << int(p.data[i]);
+    }
+    cout << dec << endl;
+}
 
 
 void dataReader(UM7_LT *um7_lt) {
@@ -38,6 +45,7 @@ void dataReader(UM7_LT *um7_lt) {
     int read;
     while (um7_lt->readData){
         read = um7_lt->PortCOM::readBlock(data, UM7_LT_BUFFER);
+
         for (int i = 0; i < read; ++i) {
 
             if (dataLength == 0) {
@@ -50,28 +58,30 @@ void dataReader(UM7_LT *um7_lt) {
             else if (dataLength == packetIndex){
                 uint16_t checksum = 0;
                 for (int i = 0; i < dataLength-2; ++i) checksum += uint16_t(tempPacket[i]);
-                if (checksum != ((tempPacket[dataLength-2]<<8) | tempPacket[dataLength-1])){
+                if ((checksum != ((tempPacket[dataLength-2]<<8) | tempPacket[dataLength-1])) || tempPacket[0] != 's' || tempPacket[1] != 'n' || tempPacket[2] != 'p'){
                     ERROR_COM(um7_lt->getPortNumber(), "Checksum is incorrect.");
                 }
                 else if (dataLength > 7) {
                     packet.address = tempPacket[4];
                     packet.length = uint8_t(dataLength - 7);
-                    packet.data = new uint8_t[packet.length];
-                    for (int i = 0; i < packet.length; ++i) packet.data[i] = tempPacket[i+5];
+                    packet.data = (uint8_t*) malloc(packet.length*sizeof(uint8_t));
+                    memcpy(packet.data,tempPacket,packet.length*sizeof(uint8_t));
+                    showPacket(packet);
                     um7_lt->readThreadMutex.lock();
                     um7_lt->packets.push(packet);
                     um7_lt->readThreadMutex.unlock();
+                    packet.data = NULL;
                 }
                 tempPacket[3] = 0;
                 packetIndex = 0;
                 dataLength = 0;
             }
-            else if (dataLength < 7 || dataLength >= 80){
+            else if (dataLength < 7 || packetIndex > 78){
                 tempPacket[3] = 0;
                 packetIndex = 0;
                 dataLength = 0;
+                ERROR_COM(um7_lt->getPortNumber(), "Packet/s lost.");
             }
-
 
             tempPacket[packetIndex++] = data[i];
         }
@@ -99,6 +109,7 @@ bool UM7_LT::takeLastPacket(UM7_LT_packet &packet) {
         return false;
     }
     packet = packets.front();
+    packets.front().data = NULL;
     packets.pop();
     readThreadMutex.unlock();
     return true;

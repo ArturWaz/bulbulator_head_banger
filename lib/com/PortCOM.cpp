@@ -44,7 +44,7 @@ void PortCOM::sendBlock(uint8_t *buffer, uint8_t length){
 }
 uint8_t PortCOM::readBlock(uint8_t *buffer, uint8_t length){
 	uint8_t number = RS232_PollComport(portNumber, buffer, (unsigned char)length);
-	if (number <= 0) throw false;
+	if (number < 0) throw false;
 	return number;
 }
 

@@ -20,8 +20,17 @@
 
 struct UM7_LT_packet {
     uint8_t address;
-    uint8_t *data;
     uint8_t length;
+    uint8_t *data;
+
+    UM7_LT_packet(): data(NULL) {}
+    UM7_LT_packet(UM7_LT_packet const &p): address(p.address), length(p.length), data(p.data) {}
+    inline void operator=(UM7_LT_packet const &p) {
+        address = p.address;
+        length = p.length;
+        data = p.data;
+    }
+    ~UM7_LT_packet() { if (data != NULL) free(data); }
 };
 
 
