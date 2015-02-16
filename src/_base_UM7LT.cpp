@@ -16,7 +16,7 @@ using namespace std;
 
 
 
-_base_UM7LT::_base_UM7LT(int portNumer): PortCOM(portNumer,115200), readData(false) {
+_base_UM7LT::_base_UM7LT(int portNumber): PortCOM(portNumber,115200), readData(false) {
     PortCOM::open();
 }
 

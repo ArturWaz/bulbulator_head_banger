@@ -1,13 +1,13 @@
 /*
- * UM7_LT.h
+ * _base_UM7LT.h
  *
  *  Created on: 14.02.15
  *      Author: artur
  */
 
 
-#ifndef UM7_LT_H_
-#define UM7_LT_H_
+#ifndef _base_UM7LT_H_
+#define _base_UM7LT_H_
 
 
 #include <com/PortCOM.h>
@@ -46,7 +46,7 @@ class _base_UM7LT : public PortCOM {
 
 public:
 
-    _base_UM7LT(int portNumer);
+    _base_UM7LT(int portNumber);
     _base_UM7LT(int portNumber, int baudrate);
     ~_base_UM7LT();
 
