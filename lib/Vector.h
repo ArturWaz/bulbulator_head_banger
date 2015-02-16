@@ -22,25 +22,27 @@ protected:
     unsigned int length;
     bool isVertical; // vector orientation, needed in matrix multiplications
 
+    Vector(): isVertical(true) {}
+
 public:
 
-    inline Vector(unsigned int length): length(length), isVertical(true) {
+    Vector(unsigned int length): length(length), isVertical(true) {
         table = (Type*)calloc(length,sizeof(Type));
         if (table == NULL) throw -1;
     }
-    inline Vector(const Vector<Type> &v): length(v.length), isVertical(v.isVertical) {
+    Vector(const Vector<Type> &v): length(v.length), isVertical(v.isVertical) {
         table = (Type*)malloc(length*sizeof(Type));
         if (table == NULL) throw -1;
         memcpy(table,v.table,length*sizeof(Type));
     }
-    inline Vector<Type> const &operator=(const Vector<Type> &v) {
+    Vector<Type> const &operator=(const Vector<Type> &v) {
         if (length != v.length || isVertical != v.isVertical) throw -2;
         memcpy(table,v.table,length*sizeof(Type));
         return *this;
     }
-    inline ~Vector() { free(table); }
+    ~Vector() { free(table); }
 
-    Type *tablePtr() const { return table; }
+    inline Type *tablePtr() const { return table; }
 
     inline unsigned int getLength() const { return length; }
     inline unsigned int getRows() const { return isVertical?length:1; }

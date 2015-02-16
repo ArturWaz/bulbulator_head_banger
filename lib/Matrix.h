@@ -25,6 +25,8 @@ protected:
     unsigned int rows;
     unsigned int columns;
 
+    Matrix() {}
+
     void swapMatrices(Matrix<Type> &m) {
         Type *tmp_ptrTable = ptrTable;
         unsigned int tmp_rows = rows;
