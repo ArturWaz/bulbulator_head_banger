@@ -7,9 +7,10 @@
 
 
 #include <iostream>
-#include <UM7_LT.h>
+#include "_base_UM7LT.h"
 #include <Vector.h>
 #include <Matrix.h>
+#include <DefineFunctions.h>
 
 using namespace std;
 
@@ -43,11 +44,12 @@ int main(){
 
 
 
-    UM7_LT um7(4);
+    _base_UM7LT um7(4);
 
     UM7_LT_packet lol;
 
     um7.turnOnThreadedRead();
+    int i = 0;
     while (true){
         if (um7.takeLastPacket(lol)){
             test(lol);

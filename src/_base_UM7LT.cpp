@@ -7,7 +7,7 @@
 
 
 #include <DefineFunctions.h>
-#include "UM7_LT.h"
+#include "_base_UM7LT.h"
 
 using namespace std;
 
@@ -16,18 +16,18 @@ using namespace std;
 
 
 
-UM7_LT::UM7_LT(int portNumer): PortCOM(portNumer,115200), readData(false) {
+_base_UM7LT::_base_UM7LT(int portNumer): PortCOM(portNumer,115200), readData(false) {
     PortCOM::open();
 }
 
-UM7_LT::UM7_LT(int portNumber, int baudrate): PortCOM(portNumber,baudrate), readData(false) {
+_base_UM7LT::_base_UM7LT(int portNumber, int baudrate): PortCOM(portNumber,baudrate), readData(false) {
     PortCOM::open();
 }
 
-UM7_LT::~UM7_LT() {}
+_base_UM7LT::~_base_UM7LT() {}
 
 
-void showPacket(UM7_LT_packet const &p){
+void showPacket_UM7_LT(UM7_LT_packet const &p){
     cout << "read:   " << hex;
     for (int i = 0; i < p.length; ++i) {
         cout << " " << int(p.data[i]);
@@ -36,7 +36,7 @@ void showPacket(UM7_LT_packet const &p){
 }
 
 
-void dataReader(UM7_LT *um7_lt) {
+void dataReader(_base_UM7LT *um7_lt) {
     UM7_LT_packet packet;
     uint8_t data[UM7_LT_BUFFER];
     uint8_t packetIndex = 0;
@@ -66,7 +66,7 @@ void dataReader(UM7_LT *um7_lt) {
                     packet.length = uint8_t(dataLength - 7);
                     packet.data = (uint8_t*) malloc(packet.length*sizeof(uint8_t));
                     memcpy(packet.data,tempPacket,packet.length*sizeof(uint8_t));
-                    showPacket(packet);
+//                    showPacket_UM7_LT(packet);
                     um7_lt->readThreadMutex.lock();
                     um7_lt->packets.push(packet);
                     um7_lt->readThreadMutex.unlock();
@@ -88,21 +88,21 @@ void dataReader(UM7_LT *um7_lt) {
     }
 }
 
-void UM7_LT::turnOnThreadedRead() {
+void _base_UM7LT::turnOnThreadedRead() {
     readData = true;
     readThread = std::thread(dataReader,this);
 }
 
-void UM7_LT::turnOffThreadedRead() {
+void _base_UM7LT::turnOffThreadedRead() {
     readData = false;
     readThread.join();
 }
 
-void UM7_LT::sendPacket(UM7_LT_packet const &aConst) const {
+void _base_UM7LT::sendPacket(UM7_LT_packet const &aConst) const {
 
 }
 
-bool UM7_LT::takeLastPacket(UM7_LT_packet &packet) {
+bool _base_UM7LT::takeLastPacket(UM7_LT_packet &packet) {
     readThreadMutex.lock();
     if (packets.empty()){
         readThreadMutex.unlock();

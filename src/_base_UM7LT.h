@@ -34,7 +34,7 @@ struct UM7_LT_packet {
 };
 
 
-class UM7_LT: public PortCOM {
+class _base_UM7LT : public PortCOM {
 
     std::thread readThread;
     std::mutex readThreadMutex;
@@ -42,13 +42,13 @@ class UM7_LT: public PortCOM {
 
     std::queue<UM7_LT_packet> packets;
 
-    friend void dataReader(UM7_LT*);
+    friend void dataReader(_base_UM7LT *);
 
 public:
 
-    UM7_LT(int portNumer);
-    UM7_LT(int portNumber, int baudrate);
-    ~UM7_LT();
+    _base_UM7LT(int portNumer);
+    _base_UM7LT(int portNumber, int baudrate);
+    ~_base_UM7LT();
 
     void turnOnThreadedRead();
     void turnOffThreadedRead();
