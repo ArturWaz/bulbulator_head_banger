@@ -18,11 +18,12 @@
 
 
 enum LastAcquiredData {
-    NONE = 0,
-    GYRO,
-    ACC,
-    QUAT,
-    EULER
+    NONE    = 0x0000,
+    GYRO    = 0x0001,
+    ACC     = 0x0002,
+    QUAT    = 0x0004,
+    EULER   = 0x0008,
+    MAG     = 0x0010
 };
 
 
@@ -97,7 +98,7 @@ public:
     ~UM7LT();
 
 
-    LastAcquiredData getNewData();
+    uint16_t getNewData();
 
 
 

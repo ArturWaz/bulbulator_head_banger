@@ -55,23 +55,29 @@ int main(){
 
     while(true) {
 
-        LastAcquiredData inf = imu.getNewData();
-        if (inf == EULER) {
-            cout << imu.eulerAngles.back().time() << ":   \t";
+        uint16_t inf = imu.getNewData();
+        if (inf & EULER) {
+            cout << "euler: " << imu.eulerAngles.back().time() << ":   \t";
             test(imu.eulerAngles.back());
         }
-        else if (inf == QUAT) {
-            cout << imu.quaternions.back().time() << ":   \t";
+        if (inf & QUAT) {
+            cout << "quat:  " << imu.quaternions.back().time() << ":   \t";
             test(imu.quaternions.back());
         }
-        else if (inf == ACC) {
-            cout << imu.accelerometer.back().time() << ":   \t";
+        if (inf & ACC) {
+            cout << "accel: " << imu.accelerometer.back().time() << ":   \t";
             test(imu.accelerometer.back());
         }
-        else if (inf == GYRO) {
-            cout << imu.gyroscope.back().time() << ":   \t";
+        if (inf & GYRO) {
+            cout << "gyro:  " << imu.gyroscope.back().time() << ":   \t";
             test(imu.gyroscope.back());
         }
+        if (inf & MAG) {
+            cout << "mag:   " << imu.magnetometer.back().time() << ":   \t";
+            test(imu.magnetometer.back());
+        }
+        if (inf)
+            cout << endl;
     }
 
 
