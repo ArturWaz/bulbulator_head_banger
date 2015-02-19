@@ -101,7 +101,6 @@ public:
     uint16_t getNewData();
 
 
-
 };
 
 

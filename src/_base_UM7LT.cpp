@@ -24,7 +24,12 @@ _base_UM7LT::_base_UM7LT(int portNumber, int baudrate): PortCOM(portNumber,baudr
     PortCOM::open();
 }
 
-_base_UM7LT::~_base_UM7LT() {}
+_base_UM7LT::~_base_UM7LT() {
+    if (readData) {
+        readData = false;
+        readThread.join();
+    }
+}
 
 
 void showPacket_UM7_LT(UM7_LT_packet const &p){
