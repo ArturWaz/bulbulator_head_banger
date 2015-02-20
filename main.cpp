@@ -18,6 +18,7 @@
 #include <fstream>
 #include <conio.h>
 #include <complex>
+#include <MovingArray.h>
 
 using namespace std;
 
@@ -69,9 +70,9 @@ Vector3D<T> eliminateGravity(Vector3D<T> const &accelData, Vector3D<T> const &eu
 }
 
 #include "lin_high_pass_filter.h"
-double FIRfilter(double const &norm) {
+double FIRfilter(double const &in) {
     static list<double> lastValues;
-    lastValues.push_front(norm);
+    lastValues.push_front(in);
     double actual = 0;
     if (lastValues.size() >= 246) {
         int i = 0;
@@ -85,7 +86,7 @@ double FIRfilter(double const &norm) {
 }
 
 
-int main(){
+void UM7LTtestfunc() {
 
     ofstream output("tmp.csv",ios::trunc);
     output << "time,ax,ay,az\n";
@@ -138,11 +139,71 @@ int main(){
             output << setprecision(9) << imu.accelerometer.back().time() << "," << acc(0) << "," << acc(1) << "," << acc(2) << endl;
         }
 
-
         if (inf) {
 //            cout << endl;
         }
     }
+
+
+}
+
+
+void MovingArrayTestfunc() {
+    MovingArray<int> movingArray(4);
+    MovingArray<int>::iterator it(movingArray);
+    MovingArray<int> movingArray1(6);
+
+    for (int i = 0; i < movingArray.size(); ++i) {
+        cout << movingArray[i] << " ";
+    }
+    cout << endl;
+
+    it.value() = 43;
+
+    it -= 3;
+
+    it.value() = 54;
+
+    it = movingArray1;
+    (++it).value() = 654;
+    MovingArray<int>::iterator it2(it);
+    (it2-5).value() = 54;
+
+
+    for (int i = 0; i < movingArray.size(); ++i) {
+        cout << movingArray[i] << " ";
+    }
+    cout << endl;
+    for (int i = 0; i < movingArray1.size(); ++i) {
+        cout << movingArray1[i] << " ";
+    }
+    cout << endl;
+}
+
+
+int main(){
+
+    MovingArray<int> movingArray(5);
+    MovingArray<int>::iterator it(movingArray);
+
+    int test = 0;
+
+    while (true) {
+
+        test += 2;
+
+        (++it).value() = test;
+
+        cout << (it+0).value() << " " << (it+1).value() << " " << (it+2).value() << " " << (it+3).value() << " " << (it+4).value() << endl;
+
+//        for (int i = 0; i < movingArray.size(); ++i) {
+//            cout << movingArray[i] << " ";
+//        }
+//        cout << endl;
+
+        SLEEP_MS(1000);
+    }
+
 
 
     return 0;
