@@ -11,7 +11,6 @@
 
 
 #include <cstdlib>
-#include <dciman.h>
 
 
 template <class T>class MovingArray {
