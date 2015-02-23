@@ -7,10 +7,10 @@
 
 
 #include <list>
-#include <Vector.h>
 #include "_base_UM7LT.h"
-#include "Vector3D.h"
-#include "Quaternion.h"
+#include "math/Vector.h"
+#include "math/Vector3D.h"
+#include "math/Quaternion.h"
 
 #ifndef UM7LT_H_
 #define UM7LT_H_

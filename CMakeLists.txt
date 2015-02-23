@@ -10,8 +10,8 @@ SET( PROJ_OUT_PATH ${CMAKE_BINARY_DIR} )
 SET( PROJ_NAME "bulbulator" )
 SET( PROJ_LIBRARIES )
 SET( PROJ_INCLUDES "src" "lib" )
-FILE( GLOB_RECURSE PROJ_HEADERS src/*.h lib/*.h lib/com/*.h )
-FILE( GLOB_RECURSE PROJ_SOURCES main.cpp src/*.cpp lib/*.cpp lib/com/*.c )
+FILE( GLOB_RECURSE PROJ_HEADERS src/*.h lib/*.h lib/serial/*.h lib/math/*.h )
+FILE( GLOB_RECURSE PROJ_SOURCES main.cpp src/*.cpp lib/*.cpp lib/serial/*.c lib/math/*.cpp )
 
 # End of special section
 

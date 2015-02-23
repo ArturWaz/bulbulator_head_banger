@@ -8,15 +8,14 @@
 
 #include <iostream>
 #include "_base_UM7LT.h"
-#include <Vector.h>
-#include <Matrix.h>
+#include <math/Vector.h>
+#include <math/Matrix.h>
 #include <DefineFunctions.h>
-#include <RotationMatrix.h>
+#include <math/RotationMatrix.h>
 #include <UM7LT.h>
 #include <CONFIG.h>
 #include <iomanip>
 #include <fstream>
-#include <conio.h>
 #include <complex>
 #include <MovingArray.h>
 
@@ -99,9 +98,9 @@ void UM7LTtestfunc() {
     bool turnOn = true;
     while(turnOn) {
 
-        if (_kbhit()){
-            if (_getch() == 'q') turnOn = false;
-        }
+//        if (_kbhit()){
+//            if (_getch() == 'q') turnOn = false;
+//        }
 
         uint16_t inf = imu.getNewData();
 //        if (inf & EULER) {
@@ -181,7 +180,7 @@ void MovingArrayTestfunc() {
 }
 
 
-int main(){
+void MovingArrayTestfunc1() {
 
     MovingArray<int> movingArray(5);
     MovingArray<int>::iterator it(movingArray);
@@ -194,7 +193,7 @@ int main(){
 
         (++it).value() = test;
 
-        cout << (it+0).value() << " " << (it+1).value() << " " << (it+2).value() << " " << (it+3).value() << " " << (it+4).value() << endl;
+        cout << (it+0).value() << " " << (it-1).value() << " " << (it-2).value() << " " << (it-3).value() << " " << (it-4).value() << endl;
 
 //        for (int i = 0; i < movingArray.size(); ++i) {
 //            cout << movingArray[i] << " ";
@@ -203,6 +202,11 @@ int main(){
 
         SLEEP_MS(1000);
     }
+
+}
+
+
+int main(){
 
 
 
