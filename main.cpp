@@ -18,6 +18,8 @@
 #include <iomanip>
 #include <fstream>
 #include <complex>
+#include <DigitalFilter.h>
+#include <conio.h>
 #include "Buffer.h"
 
 using namespace std;
@@ -69,21 +71,6 @@ Vector3D<T> eliminateGravity(Vector3D<T> const &accelData, Vector3D<T> const &eu
     return out;
 }
 
-#include "lin_high_pass_filter.h"
-double FIRfilter(double const &in) {
-    static list<double> lastValues;
-    lastValues.push_front(in);
-    double actual = 0;
-    if (lastValues.size() >= 246) {
-        int i = 0;
-        list<double>::iterator it;
-        for (it = lastValues.begin(); it != lastValues.end(); ++it, ++i){
-            actual += (*it) * B[i];
-        }
-        lastValues.pop_back();
-    }
-    return actual;
-}
 
 
 double calculateBias(double const &in) {
@@ -131,6 +118,8 @@ void UM7LTtestfunc() {
 
     imu.turnOnThreadedRead();
 
+    DigitalFilter::IIR_DirectFormII<double,1> filter;
+
     static double velocity = 0.0;
     static double position = 0.0;
     bool turnOn = true;
@@ -164,7 +153,7 @@ void UM7LTtestfunc() {
         if ((inf & EULER) && !(imu.eulerAngles.empty() || imu.accelerometer.empty()) && imu.eulerAngles.back().time() == imu.accelerometer.back().time()) { //imu.accelerometer.size() == imu.eulerAngles.size()) {
             Vector3D<double> acc = imu.accelerometer.back();// eliminateGravity(imu.accelerometer.back(), imu.eulerAngles.back());
 
-            double x = acc(0);
+            double x = filter.filterMatlabCoeffs(acc.norm());
 
             double bias = calculateBias(x);
             double accel = bias!=0.0?x-bias:0.0;
@@ -178,8 +167,8 @@ void UM7LTtestfunc() {
 //                velocity = acc.norm()*0.02;
 //            else
 //                velocity += acc.norm()*0.02;
-            cout << fixed << setprecision(3) << "pose [m]: " << setw(8) << position << ",    " << "velocity [m/s]: " << setw(8) << velocity << ",    " << "acc [m/s/s]: " << setprecision(2) << setw(8) << (fabs(accel)> precisionAccel ? accel *0.02:0.0) << " " << '\r';
-//            cout << "acc [m/s]: " << setw(20) << fixed << setprecision(1) << accel << "               " << '\r';
+//            cout << fixed << setprecision(3) << "pose [m]: " << setw(8) << position << ",    " << "velocity [m/s]: " << setw(8) << velocity << ",    " << "acc [m/s/s]: " << setprecision(2) << setw(8) << (fabs(accel)> precisionAccel ? accel *0.02:0.0) << " " << '\r';
+            cout << "acc [m/s]: " << setw(20) << fixed << setprecision(1) << accel << "               " << '\r';
 
             output << setprecision(9) << imu.accelerometer.back().time() << "," << acc(0) << "," << acc(1) << "," << acc(2) << endl;
         }
@@ -215,9 +204,44 @@ void MovingArrayTestfunc() {
 }
 
 
+
+void digitalFilterTest() {
+
+    DigitalFilter::IIR_DirectFormII<double,1> filter;
+    DigitalFilter::Average<double,100> average;
+
+    double x = 0;
+
+    const double unit = 1;
+
+    bool impulse = false;
+
+    while (true) {
+
+        if (_kbhit()) {
+            char c = getch();
+            if (c == 'q') return;
+            if (c == 'i') x += unit;
+            if (c == 'd') x -= unit;
+            if (c == 'p') { x = unit; impulse = true; }
+        }
+
+        double filtered = filter.filterMatlabCoeffs(x);
+//        double averaged = average.filter(x);
+
+        cout << filtered << endl;// << " " << averaged << " " << filtered - averaged << endl;
+
+        if (impulse) x = 0;
+
+        SLEEP_MS(50);
+    }
+
+}
+
+
 int main(){
 
-    MovingArrayTestfunc();
+    digitalFilterTest();
 
     return 0;
 }
