@@ -8,7 +8,7 @@
  * Discrete-Time IIR Filter (real)
  * -------------------------------
  * Filter Structure    : Direct-Form II, Second-Order Sections
- * Number of Sections  : 1
+ * Number of Sections  : 5
  * Stable              : Yes
  * Linear Phase        : No
  */
@@ -23,14 +23,26 @@
 
 namespace filterFromMatlab2 {
 
-#define MWSPT_NSEC 3
+#define MWSPT_NSEC 11
     const int NL[MWSPT_NSEC] = {1, 3, 1};
     double NUM[MWSPT_NSEC][3] = {
             {
-                    0.001875439870576,                 0,                 0
+                    0.3031909682064,                 0,                 0
             },
             {
-                    1,   -1.799441161951,                 1
+                    1,   -1.999976735989,                 1
+            },
+            {
+                    0.9935198868402,                 0,                 0
+            },
+            {
+                    1,   -1.999990672948,                 1
+            },
+            {
+                    3.227886792779,                 0,                 0
+            },
+            {
+                    1,                -1,                 0
             },
             {
                     1,                 0,                 0
@@ -42,7 +54,19 @@ namespace filterFromMatlab2 {
                     1,                 0,                 0
             },
             {
-                    1,    1.877117394646,   0.8842430180867
+                    1,   -1.997760792981,   0.9979200382502
+            },
+            {
+                    1,                 0,                 0
+            },
+            {
+                    1,   -1.986862824199,   0.9872074565499
+            },
+            {
+                    1,                 0,                 0
+            },
+            {
+                    1,   -0.959436644467,                 0
             },
             {
                     1,                 0,                 0

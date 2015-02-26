@@ -207,7 +207,7 @@ void MovingArrayTestfunc() {
 
 void digitalFilterTest() {
 
-    DigitalFilter::IIR_DirectFormII<double,1> filter;
+    DigitalFilter::FIR_DirectFormI<double,3> filter;
     DigitalFilter::Average<double,100> average;
 
     double x = 0;
@@ -229,7 +229,7 @@ void digitalFilterTest() {
         double filtered = filter.filterMatlabCoeffs(x);
 //        double averaged = average.filter(x);
 
-        cout << filtered << endl;// << " " << averaged << " " << filtered - averaged << endl;
+        cout << fixed << setprecision(9) << setw(30) << filtered << endl;// << " " << averaged << " " << filtered - averaged << endl;
 
         if (impulse) x = 0;
 

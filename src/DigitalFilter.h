@@ -25,7 +25,7 @@ namespace DigitalFilter {
     template <class T, unsigned int NUMBER_OF_SECTIONS> class IIR_DirectFormII {
 
         unsigned int numberOfSections;
-        Buffer<T,3> buffer[NUMBER_OF_SECTIONS];
+        Buffer<T,2> buffer[NUMBER_OF_SECTIONS];
 
 //        T **numerator;
 //        T **denominator;
@@ -40,9 +40,10 @@ namespace DigitalFilter {
 
             for (int i = 0; i < numberOfSections; ++i) {
 
-                buffer[i].push( filterFromMatlab2::NUM[i*2][0]*out - filterFromMatlab2::DEN[i*2+1][1]*buffer[i](1) - filterFromMatlab2::DEN[i*2+1][2]*buffer[i](2) );
-                out = filterFromMatlab2::NUM[i*2+1][0]*buffer[i](0) + filterFromMatlab2::NUM[i*2+1][1]*buffer[i](1) + filterFromMatlab2::NUM[i*2+1][2]*buffer[i](2);
+                T actual = filterFromMatlab2::NUM[i*2][0]*out - filterFromMatlab2::DEN[i*2+1][1]*buffer[i](0) - filterFromMatlab2::DEN[i*2+1][2]*buffer[i](1);
+                out = filterFromMatlab2::NUM[i*2+1][0]*actual + filterFromMatlab2::NUM[i*2+1][1]*buffer[i](0) + filterFromMatlab2::NUM[i*2+1][2]*buffer[i](1);
 
+                buffer[i].push(actual);
             }
 
             return out;
