@@ -40,7 +40,7 @@ namespace DigitalFilter {
 
             for (int i = 0; i < numberOfSections; ++i) {
 
-                buffer[i].push(  - filterFromMatlab2::DEN[i*2+1][1]*buffer[i](1) - filterFromMatlab2::DEN[i*2+1][2]*buffer[i](2) );
+                buffer[i].push( filterFromMatlab2::NUM[i*2][0]*out - filterFromMatlab2::DEN[i*2+1][1]*buffer[i](1) - filterFromMatlab2::DEN[i*2+1][2]*buffer[i](2) );
                 out = filterFromMatlab2::NUM[i*2+1][0]*buffer[i](0) + filterFromMatlab2::NUM[i*2+1][1]*buffer[i](1) + filterFromMatlab2::NUM[i*2+1][2]*buffer[i](2);
 
             }
