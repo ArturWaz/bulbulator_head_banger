@@ -19,7 +19,7 @@ FILE( GLOB_RECURSE PROJ_SOURCES main.cpp src/*.cpp lib/*.cpp lib/serial/*.c lib/
 
 SET( CMAKE_CXX_FLAGS "-std=c++11" )
 IF ( UNIX )
-SET( CMAKE_CXX_FLAGS "-pthread ${CMAKE_CXX_FLAGS}" )
+    SET( CMAKE_CXX_FLAGS "-pthread ${CMAKE_CXX_FLAGS}" )
 ENDIF ( UNIX )
 
 
