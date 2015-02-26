@@ -104,6 +104,26 @@ namespace DigitalFilter {
     };
 
 
+    template <class T, unsigned int ORDER> class Median {
+
+        Buffer<T,ORDER> buffer;
+        unsigned int order;
+
+        T sum; // temporary average use to improve speed of calculations
+
+    public:
+
+        Median(): order(ORDER), sum(0) {}
+        ~Median() {}
+
+        T filter(T const &actualValue) {
+            T out = 0.0;
+
+            return out;
+        }
+
+    };
+
 }
 
 #endif
