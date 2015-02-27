@@ -119,6 +119,7 @@ void UM7LTtestfunc() {
     imu.turnOnThreadedRead();
 
     DigitalFilter::IIR_DirectFormII<double,3> filter;
+    DigitalFilter::Median<double,500> median;
 
     static double velocity = 0.0;
     static double position = 0.0;
@@ -152,27 +153,33 @@ void UM7LTtestfunc() {
 //            cout << "mag:   " << imu.magnetometer.back().time() << ":   \t";
 //            test(imu.magnetometer.back());
 //        }
-        if ((inf & EULER) && !(imu.eulerAngles.empty() || imu.accelerometer.empty()) && imu.eulerAngles.back().time() == imu.accelerometer.back().time()) { //imu.accelerometer.size() == imu.eulerAngles.size()) {
-            Vector3D<double> acc = eliminateGravity(imu.accelerometer.back(), imu.eulerAngles.back());
+        if ((inf & EULER) && !(imu.eulerAngles.size() < 10 || imu.accelerometer.empty()) && imu.eulerAngles.back().time() == imu.accelerometer.back().time()) { //imu.accelerometer.size() == imu.eulerAngles.size()) {
+
+            list<TimeVector3D>::iterator iterator1 = imu.eulerAngles.end();
+            for (int i = 0; i < 1; ++i) --iterator1;
+
+            Vector3D<double> acc = eliminateGravity(imu.accelerometer.back(), *iterator1);
 
             double actualValue = acc(0);
 
-            double bias = calculateBias(actualValue);
+            double bias = 0.2;//median.filter(actualValue);
             double accel = bias!=0.0? actualValue-bias:0.0;
 
-            const double precisionAccel = 0.01;
-            const double precisionVelo = 0.01;
+            const double precisionAccel = 0.0;
+            const double precisionVelo = 0.0;
 
-            velocity += fabs(accel)> precisionAccel ?accel*0.02:0.0;
-            position += fabs(velocity)> precisionVelo ?velocity*0.02:0.0;
+            velocity += fabs(accel) > precisionAccel ? accel*0.02 : 0.0;
+            position += fabs(velocity) > precisionVelo ? velocity*0.02 : 0.0;
+
 //            if (imu.accelerometer.size() == 1)
 //                velocity = acc.norm()*0.02;
 //            else
 //                velocity += acc.norm()*0.02;
-//            cout << fixed << setprecision(3) << "pose [m]: " << setw(8) << position << ",    " << "velocity [m/s]: " << setw(8) << velocity << ",    " << "acc [m/s/s]: " << setprecision(3) << setw(8) << (fabs(accel)> precisionAccel ? accel *0.02:0.0) << " " << '\r';
-            cout << "acc [m/s]: " << setw(30) << fixed << setprecision(9) << actualValue-bias << "               " << '\r';
 
-            output << setprecision(9) << imu.accelerometer.back().time() << "," << acc(0) << "," << acc(1) << "," << acc(2) << endl;
+            cout << fixed << setprecision(3) << "pose [m]: " << setw(8) << position << ",    " << "velocity [m/s]: " << setw(8) << velocity << ",    " << "acc [m/s/s]: " << setprecision(3) << setw(8) << (fabs(accel)> precisionAccel ? accel *0.02:0.0) << " " << '\r';
+//            cout << "acc [m/s]: " << setw(30) << fixed << setprecision(9) << actualValue-bias << "               " << '\r';
+
+//            output << setprecision(9) << imu.accelerometer.back().time() << "," << acc(0) << "," << acc(1) << "," << acc(2) << endl;
             lastValue = actualValue;
         }
 
@@ -210,8 +217,9 @@ void MovingArrayTestfunc() {
 
 void digitalFilterTest() {
 
-    DigitalFilter::FIR_DirectFormI<double,155> filter;
+    DigitalFilter::Median<double,155> median;
     DigitalFilter::Average<double,100> average;
+    DigitalFilter::IIR_DirectFormII<double,3> filter;
 
     double x = 0;
 
@@ -226,15 +234,18 @@ void digitalFilterTest() {
             if (c == 'q') return;
             if (c == 'i') x += unit;
             if (c == 'd') x -= unit;
-            if (c == 'p') { x = unit; impulse = true; }
+            if (c == 'p') { x += unit; impulse = true; }
         }
 
         double filtered = filter.filterMatlabCoeffs(x);
-//        double averaged = average.filter(x);
+        double bias = median.filter(filtered);
 
-        cout << fixed << setprecision(9) << setw(30) << filtered << endl;// << " " << averaged << " " << filtered - averaged << endl;
+        cout << fixed << setprecision(9) << setw(30) << filtered << " " << bias << " " << filtered - bias << endl;
 
-        if (impulse) x = 0;
+        if (impulse) {
+            x = 0;
+            impulse = false;
+        }
 
         SLEEP_MS(50);
     }

@@ -11,6 +11,7 @@
 
 
 #include "Buffer.h"
+#include <list>
 
 
 
@@ -70,11 +71,8 @@ namespace DigitalFilter {
 
             buffer.push(actualValue);
 
-            for (unsigned int i = 0; i < order; ++i) {
-
+            for (unsigned int i = 0; i < order; ++i)
                 out += buffer(i)*FIRfilter1::B[i];
-
-            }
 
             return out;
         }
@@ -85,20 +83,19 @@ namespace DigitalFilter {
     template <class T, unsigned int ORDER> class Average {
 
         Buffer<T,ORDER> buffer;
-        unsigned int order;
 
         T sum; // temporary average use to improve speed of calculations
 
     public:
 
-        Average(): order(ORDER), sum(0) {}
+        Average(): sum(0) {}
         ~Average() {}
 
         T filter(T const &actualValue) {
-            sum -= buffer(order-1);
+            sum -= buffer(buffer.size()-1);
             buffer.push(actualValue);
             sum += buffer(0);
-            return sum/order;
+            return sum/buffer.size();
         }
 
     };
@@ -107,17 +104,37 @@ namespace DigitalFilter {
     template <class T, unsigned int ORDER> class Median {
 
         Buffer<T,ORDER> buffer;
-        unsigned int order;
+        unsigned int medianIndex;
 
-        T sum; // temporary average use to improve speed of calculations
+//        struct element {
+//            element *next;
+//            T *value;
+//        };
+
 
     public:
 
-        Median(): order(ORDER), sum(0) {}
+        Median(): medianIndex(ORDER/2) {}
         ~Median() {}
 
         T filter(T const &actualValue) {
             T out = 0.0;
+
+            buffer.push(actualValue);
+
+
+            std::list<double> tmpList;
+
+            for (unsigned int i = 0; i < buffer.size(); ++i)
+                tmpList.push_back(buffer(i));
+
+            tmpList.sort();
+
+            std::list<double>::iterator it = tmpList.begin();
+            for (unsigned int i = 0; i < medianIndex; ++i) ++it;
+            out = *it;
+
+//            tmpList.clear();
 
             return out;
         }
