@@ -28,6 +28,8 @@ public:
     Buffer(T const &initValue): length(LENGTH), index(0) { for (T &elem : array) elem = initValue; }
     ~Buffer() {}
 
+    inline T *ptrToBuffer() { return &(array[0]); }
+
     inline T const &operator[](unsigned long i) const {
         if (i >= length) throw -1;
         return array[i];
