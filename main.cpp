@@ -15,9 +15,9 @@ using namespace std;
 
 int main(){
 
-    PortCOM t(4,11520);
+    PortCOM t(0,115200);
 
-
+    t.open();
 
     t.sendByte(45);
 

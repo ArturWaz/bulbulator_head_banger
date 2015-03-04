@@ -31,8 +31,8 @@ public:
 	class Exception : public std::exception {
 		char const *info;
 	public:
-		Exception(char const *info): info(info) {}
-		virtual const char* what() const throw() { return info; }
+		explicit Exception(char const *info): info(info) {}
+		virtual char const *what() const throw() { return info; }
 	};
 
 	PortCOM(int portNumber, int baudrate): portNumber(portNumber), baudrate(baudrate), mode(NULL), opened(false) {
@@ -45,7 +45,7 @@ public:
 		std::strcpy(this->mode,mode);
 	}
 
-	~PortCOM(){
+	~PortCOM() {
 		this->close();
 		free(mode);
 	}
@@ -54,6 +54,7 @@ public:
 		if (RS232_OpenComport(portNumber, baudrate, mode) != 0) throw Exception("Cannot open COM port.");
 		opened = true;
 	}
+
 	void close() {
 		RS232_CloseComport(portNumber);
 		opened = false;
