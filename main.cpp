@@ -7,89 +7,15 @@
 
 
 #include <iostream>
-#include <thread>
-#include <UM7LT.h>
-#include <mutex>
-#include <RotationMatrix.h>
-#include "RobotControl.h"
-#include "queue"
-#include "DefineFunctions.h"
+#include "PortCOM.h"
 
 using namespace std;
-
-
-queue<int> que;
-mutex mtx;
-
-void threadTest(int nb){
-    long i = 0;
-    while(true){
-//        mtx.lock();
-        que.push(i);
-        if (que.size() >= 10)
-            que.pop();
-        ++i;
-//        mtx.unlock();
-        SLEEP_MS(1000);
-    }
-}
-
-void threadTest2(int nb){
-    long i = 0;
-    while(true){
-//        mtx.lock();
-        if (!que.empty()) que.pop();
-//        mtx.unlock();
-        SLEEP_MS(1000);
-    }
-}
 
 
 
 int main(){
 
-
-
-    UM7_LT test(16);
-    test.threadedReading();
-    while(true);
-
-
-
-//    RotationMatrix rot;
-//    RotationMatrix rot1;
-//    RotationMatrix rot2;
-//
-//
-//    for (int i = 0; i < 9; ++i) {
-//        rot1[i] = i;
-//        rot2[i] = i;
-//    }
-//
-//    rot = rot1*rot2;
-//
-//    for (int i = 0; i < 9; ++i) {
-//        cout<<rot[i]<<'\t';
-//        if (!((i+1)%3)) cout << endl;
-//    }
-//    cout << endl;
-//    for (int i = 0; i < 3; ++i) {
-//        for (int j = 0; j < 3; ++j) {
-//            cout<<rot(i,j)<<'\t';
-//        }
-//        cout << endl;
-//    }
-
-
-
-//    thread t1(threadTest,1);
-////    SLEEP_MS(500);
-////    thread t2(threadTest2,2);
-//    while(true){
-//        if (!que.empty()) cout<<que.front()<<endl;
-//        else cout<<"empty\n";
-//        SLEEP_MS(100);
-//    }
+//    SERIAL_RS232_LIB::RS232_Open();
 
     return 0;
 }
