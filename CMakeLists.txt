@@ -1,32 +1,31 @@
-CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
+CMAKE_MINIMUM_REQUIRED( VERSION 3.1.2 )
 
-SET( PROJ_PATH ${CMAKE_SOURCE_DIR} )
-SET( PROJ_OUT_PATH ${CMAKE_BINARY_DIR} )
+get_filename_component(SOURCE_DIRECTORY_NAME ${CMAKE_SOURCE_DIR} NAME)
 
 
 
 # Section for project specific settings
 
-SET( PROJ_NAME "bulbulator" )
-SET( PROJ_LIBRARIES )
-SET( PROJ_INCLUDES "src" "lib" )
-FILE( GLOB_RECURSE PROJ_HEADERS src/*.h lib/*.h lib/serial/*.h lib/math/*.h )
-FILE( GLOB_RECURSE PROJ_SOURCES main.cpp src/*.cpp lib/*.cpp lib/serial/*.c lib/math/*.cpp )
+set( PROJ_NAME "bulbulator" )
+
+
+
+set( PROJ_LIBRARIES )
+set( PROJ_INCLUDES lib src lib/serial lib/math )
+file( GLOB_RECURSE PROJ_SOURCES *.cpp src/*.cpp lib/*.cpp lib/serial/*.cpp lib/serial/*.c )
 
 # End of special section
 
 
-
-SET( CMAKE_CXX_FLAGS "-std=c++11" )
-IF ( UNIX )
-    SET( CMAKE_CXX_FLAGS "-pthread ${CMAKE_CXX_FLAGS}" )
-ENDIF ( UNIX )
-
+set( CMAKE_CXX_FLAGS "-std=c++11" )
+if ( UNIX )
+    set( CMAKE_CXX_FLAGS "-pthread ${CMAKE_CXX_FLAGS}" )
+endif ( UNIX )
 
 
-
-
-PROJECT( ${PROJ_NAME} )
-INCLUDE_DIRECTORIES( ${PROJ_INCLUDES} )
-ADD_EXECUTABLE( ${PROJ_NAME} ${PROJ_SOURCES} )
-TARGET_LINK_LIBRARIES( ${PROJ_NAME} ${PROJ_LIBRARIES} )
+set(CMAKE_SHARED_LINKER_FLAGS "-static")
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/../___bin___/${SOURCE_DIRECTORY_NAME}___${CMAKE_BUILD_TYPE}/" )
+project( ${PROJ_NAME} )
+include_directories( ${PROJ_INCLUDES} )
+add_executable( ${PROJ_NAME} ${PROJ_SOURCES} )
+target_link_libraries( ${PROJ_NAME} ${PROJ_LIBRARIES} )
