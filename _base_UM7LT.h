@@ -17,8 +17,8 @@ class _base_UM7LT {
 
     static uint8_t const maxLength = 80;
     uint8_t const *endPtr;
-
     uint8_t data[maxLength+1];
+
     uint8_t *actualPtr;
 
 public:
