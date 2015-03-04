@@ -7,10 +7,19 @@ SET( PROJ_OUT_PATH ${CMAKE_BINARY_DIR} )
 
 # Section for project specific settings
 
-SET( PROJ_NAME "bulbulator" )
-SET( PROJ_LIBRARIES )
-SET( PROJ_INCLUDES "src" "lib" )
-FILE( GLOB_RECURSE PROJ_HEADERS src/*.h lib/*.h lib/serial/*.h lib/math/*.h )
+SET( PROJ_NAME "bulbulator_on_board" )
+
+set( BOOST_PATH C:/boost_1_57_0 )
+
+#SET( OPENSSL_INCLUDES "C:/Program Files (x86)/GnuWin32/include" )
+#SET( OPENSSL_LIBRARIES "C:/Program Files (x86)/GnuWin32/lib/ssleay32.lib" "C:/Program Files (x86)/GnuWin32/lib/libeay32.lib" )
+SET( BOOST_INCLUDES ${OPENSSL_INCLUDES} ${BOOST_PATH}/include/boost-1_57 )
+SET( BOOST_LIBRARIES ${OPENSSL_LIBRARIES} ${BOOST_PATH}/lib/libboost_system-mgw48-mt-1_57.a ${BOOST_PATH}/lib/libboost_thread-mgw48-mt-1_57.a ${BOOST_PATH}/lib/libboost_date_time-mgw48-mt-1_57.a ${BOOST_PATH}/lib/libboost_regex-mgw48-mt-1_57.a ${BOOST_PATH}/lib/libboost_serialization-mgw48-mt-1_57.a )
+
+
+
+SET( PROJ_LIBRARIES ${BOOST_LIBRARIES} "ws2_32" "wsock32" )
+SET( PROJ_INCLUDES ${BOOST_INCLUDES} "src" "lib" )
 FILE( GLOB_RECURSE PROJ_SOURCES main.cpp src/*.cpp lib/*.cpp lib/serial/*.c lib/math/*.cpp )
 
 # End of special section
