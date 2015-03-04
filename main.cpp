@@ -15,7 +15,11 @@ using namespace std;
 
 int main(){
 
-//    SERIAL_RS232_LIB::RS232_Open();
+    PortCOM t(4,11520);
+
+
+
+    t.sendByte(45);
 
     return 0;
 }
