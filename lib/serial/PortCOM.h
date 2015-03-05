@@ -49,7 +49,7 @@ public:
 	}
 
 	void open() {
-		if (RS232_OpenComport(portNumber, baudrate, mode) != 0) throw Exception("Cannot open COM port.");
+		if (RS232_OpenComport(portNumber, baudrate, mode) != 0) throw Exception("Cannot open port, function PortCOM::open()");
 		opened = true;
 	}
 	void close() {
@@ -58,31 +58,31 @@ public:
 	}
 
 	void sendByte(uint8_t byte) {
-		if (!opened) throw Exception("Port COM is closed.");
-		if (RS232_SendByte(portNumber,(unsigned char)byte) < 0) throw Exception("Cannot send byte, function: sendByte()");
+		if (!opened) throw Exception("Port is closed, function: PortCOM::sendByte(uint8_t)");
+		if (RS232_SendByte(portNumber,(unsigned char)byte) < 0) throw Exception("Cannot send byte, function: PortCOM::sendByte(uint8_t)");
 	}
 	uint8_t readByte() {
-		if (!opened) throw Exception("Port COM is closed.");
+		if (!opened) throw Exception("Port is closed, function: PortCOM::readByte()");
 		unsigned char c[] = {0x00};
-		if (RS232_PollComport(portNumber, c, 1) <= 0) throw Exception("Cannot read byte, function: readByte()");
+		if (RS232_PollComport(portNumber, c, 1) <= 0) throw Exception("Cannot read byte, function: PortCOM::readByte()");
 		return c[0];
 	}
 
 	void sendBlock(uint8_t *buffer, uint8_t length) {
-		if (!opened) throw Exception("Port COM is closed.");
-		if (RS232_SendBuf(portNumber, buffer, length) != length) throw Exception("Cannot send block, function: sendBlock(uint8_t*,uint8_t)");
+		if (!opened) throw Exception("Port is closed, function PortCOM::sendBlock(uint8_t*,uint8_t)");
+		if (RS232_SendBuf(portNumber, buffer, length) != length) throw Exception("Cannot send block, function: PortCOM::sendBlock(uint8_t*,uint8_t)");
 	}
 	int readBlock(uint8_t *buffer, uint8_t length) {
-		if (!opened) throw Exception("Port COM is closed.");
+		if (!opened) throw Exception("Port is closed, function: PortCOM::readBlock(uint8_t*,uint8_t)");
 		int number = RS232_PollComport(portNumber, buffer, (unsigned char)length);
-		if (number <= 0) throw Exception("Cannot read block, function: readBlock(uint8_t*,uint8_t)");
+		if (number <= 0) throw Exception("Cannot read block, function: PortCOM::readBlock(uint8_t*,uint8_t)");
 		return number;
 	}
 
-    int getPortNumber() const { return portNumber; }
-    int getBaudrate() const { return baudrate; }
-	char const * const getMode() const { return mode; }
-	bool isOpen() const { return opened; }
+    inline int getPortNumber() const { return portNumber; }
+    inline int getBaudrate() const { return baudrate; }
+	inline char const * const getMode() const { return mode; }
+	inline bool isOpen() const { return opened; }
 
 };
 
