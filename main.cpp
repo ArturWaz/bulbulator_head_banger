@@ -9,7 +9,6 @@
 #include <iostream>
 #include "PortCOM.h"
 #include "base_UM7LT.h"
-#include "base_UM7LT_UNIT_TESTS.h"
 
 using namespace std;
 
@@ -28,7 +27,6 @@ void writeArray (uint8_t *a, uint8_t l) {
 
 int main(){
 
-    _base_UM7LT_UNIT_TESTS::parseDataFromCOM();
 
 
     return 0;
