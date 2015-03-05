@@ -10,4 +10,11 @@
 #define ClientTCP_H_
 
 
+class ClientTCP {
+
+public:
+
+};
+
+
 #endif //__ClientTCP_H_

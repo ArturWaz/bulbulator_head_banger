@@ -11,8 +11,11 @@
 
 
 #include "base_UM7LT.h"
+#include "ClientTCP.h"
 
-class UM7LT : private base_UM7LT {
+
+
+class UM7LT : private base_UM7LT, private ClientTCP {
 
 
 
