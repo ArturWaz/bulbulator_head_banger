@@ -149,12 +149,19 @@ void sendingThread() {
         }
 
         for (int i = 0; i < packetsRead; ++i) {
+
             buffer[0] = 's';
             buffer[1] = 'n';
             buffer[2] = 'p';
             buffer[3] = packets[i].packetType;
             buffer[4] = packets[i].address;
             memcpy(&(buffer[5]), packets[i].data, (packets[i].dataLength+2)*sizeof(uint8_t));
+
+
+//            for (int j = 0; j < packets[i].dataLength+7; ++j) {
+//                std::cout << std::hex << int(buffer[j]) << " ";
+//            }
+//            std::cout << "\n";
 
             for (auto &elem : sessionsList) {
                 elem->writeData(buffer, packets[i].dataLength+7);
