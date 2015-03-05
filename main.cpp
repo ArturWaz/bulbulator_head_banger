@@ -13,8 +13,9 @@
 #include <boost/asio.hpp>
 #include <thread>
 #include <mutex>
-#include <_base_UM7LT.h>
+#include <base_UM7LT.h>
 #include <DefineFunctions.h>
+#include <serial/PortCOM.h>
 
 
 #define PORT_NR 4
@@ -23,7 +24,7 @@
 using boost::asio::ip::tcp;
 
 
-_base_UM7LT um7(PORT_NR);
+PortCOM portCOM(PORT_NR,115200);
 
 
 class session;
@@ -123,52 +124,47 @@ private:
 
 
 void sendingThread() {
-    um7.turnOnThreadedRead();
+    portCOM.open();
 
-    UM7_LT_packet packet;
-    uint8_t data[100];
+    uint8_t buffer[253];
+    uint8_t bufferRead;
+
+    base_UM7LT::Packet packets[10];
+    uint8_t packetsRead;
+
+    base_UM7LT um7;
 
     while (true) {
 
-        if (!um7.getLastPacket(packet)) {
-            if (packet.data != NULL) {
-                free(packet.data);
-                packet.data = NULL;
-            }
-            continue;
-        }
+        bufferRead = portCOM.readBlock(buffer, 250);
+        if (!bufferRead) continue;
 
-        if (packet.data == NULL) continue;
-
-        data[0] = uint8_t('s');
-        data[1] = uint8_t('n');
-        data[2] = uint8_t('p');
-        data[3] = packet.length;
-        data[4] = packet.address;
-        memcpy(&(data[5]), packet.data, packet.length*sizeof(uint8_t));
+        packetsRead = um7.parseData(buffer, bufferRead, packets, 10);
+        if (!packetsRead) continue;
 
         sessionListMutex.lock();
         if (sessionsList.empty()) {
             sessionListMutex.unlock();
-            if (packet.data != NULL) {
-                free(packet.data);
-                packet.data = NULL;
-            }
-            SLEEP_MS(1000);
             continue;
         }
-        for (auto &elem : sessionsList) {
-            elem->writeData(data,packet.length+5);
+
+        for (int i = 0; i < packetsRead; ++i) {
+            buffer[0] = 's';
+            buffer[1] = 'n';
+            buffer[2] = 'p';
+            buffer[3] = packets[i].packetType;
+            buffer[4] = packets[i].address;
+            memcpy(&(buffer[5]), packets[i].data, (packets[i].dataLength+2)*sizeof(uint8_t));
+
+            for (auto &elem : sessionsList) {
+                elem->writeData(buffer, packets[i].dataLength+7);
+            }
         }
         sessionListMutex.unlock();
 
-        if (packet.data != NULL) {
-            free(packet.data);
-            packet.data = NULL;
-        }
     }
 
-    um7.turnOffThreadedRead();
+    portCOM.close();
 }
 
 
