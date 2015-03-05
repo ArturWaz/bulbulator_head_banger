@@ -8,10 +8,14 @@ get_filename_component(SOURCE_DIRECTORY_NAME ${CMAKE_SOURCE_DIR} NAME)
 
 set( PROJ_NAME "bulbulator" )
 
+set( BOOST_PATH C:/boost_1_57_0 )
+
+set( BOOST_INCLUDES ${OPENSSL_INCLUDES} ${BOOST_PATH}/include/boost-1_57 )
+set( BOOST_LIBRARIES ${OPENSSL_LIBRARIES} ${BOOST_PATH}/lib/libboost_system-mgw48-mt-1_57.a ${BOOST_PATH}/lib/libboost_thread-mgw48-mt-1_57.a ${BOOST_PATH}/lib/libboost_date_time-mgw48-mt-1_57.a ${BOOST_PATH}/lib/libboost_regex-mgw48-mt-1_57.a ${BOOST_PATH}/lib/libboost_serialization-mgw48-mt-1_57.a )
 
 
-set( PROJ_LIBRARIES )
-set( PROJ_INCLUDES lib lib/serial )
+set( PROJ_LIBRARIES ${BOOST_LIBRARIES} "ws2_32" "wsock32" )
+set( PROJ_INCLUDES ${BOOST_INCLUDES} lib lib/serial )
 file( GLOB_RECURSE PROJ_SOURCES *.cpp lib/serial/*.cpp lib/serial/*.c )
 
 # End of special section

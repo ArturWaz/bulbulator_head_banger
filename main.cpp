@@ -6,9 +6,12 @@
  */
 
 
+#include "winsock2.h"
 #include <iostream>
 #include "PortCOM.h"
 #include "base_UM7LT.h"
+//#include "UM7LT.h"
+#include "ClientTCP.h"
 
 using namespace std;
 
@@ -26,7 +29,6 @@ void writeArray (uint8_t *a, uint8_t l) {
 
 
 int main(){
-
 
 
     return 0;

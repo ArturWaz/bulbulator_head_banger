@@ -9,10 +9,29 @@
 #ifndef ClientTCP_H_
 #define ClientTCP_H_
 
+#include <boost/asio.hpp>
+
+
 
 class ClientTCP {
 
+    boost::asio::io_service io_service;
+    boost::asio::ip::tcp::socket s;
+    boost::asio::ip::tcp::resolver resolver;
+
+    char const *server;
+    char const *port;
+
 public:
+
+    ClientTCP(char const *server, char const *port): s(io_service), resolver(io_service), server(server), port(port) {}
+    ~ClientTCP() {}
+
+    inline void connect() { boost::asio::connect(s, resolver.resolve({server, port})); }
+    inline void disconnect() {}
+
+    inline uint8_t readBlock(uint8_t *buffer, uint8_t const length) { return (uint8_t)boost::asio::read(s,boost::asio::buffer(buffer, length)); }
+    inline void sendBlock(uint8_t const *buffer, uint8_t const length) { boost::asio::write(s, boost::asio::buffer(buffer, length)); }
 
 };
 
