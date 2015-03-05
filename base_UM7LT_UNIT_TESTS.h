@@ -27,7 +27,7 @@ namespace _base_UM7LT_UNIT_TESTS {
         cout << dec << endl;
     }
 
-    void showPacket(_base_UM7LT::Packet const &p) {
+    void showPacket(base_UM7LT::Packet const &p) {
         cout << hex << endl;
         cout << "Address: 0x" << int(p.address) << ", packet type: 0x" << int(p.packetType) << endl;
         cout << "Data length: " << dec << int(p.dataLength) << hex << endl;
@@ -40,7 +40,7 @@ namespace _base_UM7LT_UNIT_TESTS {
     void parseData() { // generate proper input data and parse it
         uint8_t buffer[250];
 
-        buffer[0] = 's'; buffer[1] = 'n'; buffer[2] = 'p'; buffer[3] = 0x3C;
+        buffer[0] = 's'; buffer[1] = 'n'; buffer[2] = 'p'; buffer[3] = 0x10;
         int i;
         uint16_t checksum = 's'+'n'+'p'+buffer[3];
         for (i = 4; i < buffer[3]+5; ++i) {
@@ -52,24 +52,24 @@ namespace _base_UM7LT_UNIT_TESTS {
 
         buffer[++i] = 's'; buffer[++i] = 'n'; buffer[++i] = 'p';
 
-        _base_UM7LT um7;
+        base_UM7LT um7;
 
-        _base_UM7LT::Packet packets[5];
+        base_UM7LT::Packet packets[5];
 
         uint8_t numberOfPackets = um7.parseData(buffer, 90, packets, 5);
 
 
         cout << endl << "Data length: " << int(buffer[3]) << endl;
         writeArray(&(buffer[5]),buffer[3]);
-
-        showPacket(packets[0]);
+        for (int i = 0; i < numberOfPackets; ++i)
+            showPacket(packets[i]);
     }
 
 
     void parseDataFromCOM() {
         PortCOM com(4,115200);
-        _base_UM7LT::Packet packets[10];
-        _base_UM7LT um7;
+        base_UM7LT::Packet packets[10];
+        base_UM7LT um7;
 
         uint8_t buffer[251];
 
@@ -78,7 +78,6 @@ namespace _base_UM7LT_UNIT_TESTS {
         while (true) {
             uint8_t read = com.readBlock(buffer, 250);
             if (read > 0) {
-//                cout<<int(read) << endl;
                 uint8_t parsedPackets = um7.parseData(buffer, read, packets, 10);
                 for (int i = 0; i < parsedPackets; ++i) {
                     showPacket(packets[i]);

@@ -8,8 +8,8 @@
 
 #include <iostream>
 #include "PortCOM.h"
-#include "_base_UM7LT.h"
-#include "_base_UM7LT_UNIT_TESTS.h"
+#include "base_UM7LT.h"
+#include "base_UM7LT_UNIT_TESTS.h"
 
 using namespace std;
 

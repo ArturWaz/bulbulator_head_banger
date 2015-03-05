@@ -6,20 +6,21 @@
  */
 
 
-#ifndef _base_UM7LT_H_
-#define _base_UM7LT_H_
+#ifndef base_UM7LT_H_
+#define base_UM7LT_H_
 
 
+#include <iostream>
 
-class _base_UM7LT {
+
+class base_UM7LT {
 
     static uint8_t const maxLength = 99;
     uint8_t const *endPtr;
     uint8_t data[maxLength+1] = {};
 
-//    uint8_t tmpTable[3] = {0x00,0x00,0x00};
-
     uint8_t *actualPtr;
+    uint8_t *endDataPtr;
 
 public:
 
@@ -37,29 +38,35 @@ public:
         uint8_t data[maxLength];
     };
 
-    _base_UM7LT(): actualPtr(&(data[0])), endPtr(&(data[maxLength])) {}
+    base_UM7LT(): actualPtr(&(data[3])), endPtr(&(data[maxLength])), endDataPtr(&(data[0])) {}
 
     inline uint8_t length() { return maxLength; }
 
     inline uint8_t parseData(uint8_t const *buffer, uint8_t const length, Packet *packets, uint8_t const packetsLength) {
         uint8_t numberOfPackets = 0;
+        uint8_t dataLength = 0;
+
         for (uint8_t *i = const_cast<uint8_t*>(&(buffer[0])); i != &(buffer[length]); ++i) {
 
-            if (*i == 's') {
-                data[0] = *i;
-            }
-            else if (data[0] == 's' && *i == 'n') {
-                data[1] = *i;
-            }
-            else if (data[0] == 's' && data[1] == 'n' && *i == 'p') {
+            uint8_t *prevPtr = actualPtr;
+            if (*(--prevPtr) == 'p' && !dataLength)
+                if (*(--prevPtr) == 'n')
+                    if (*(--prevPtr) == 's') {
+                        dataLength = (0x3C & (*i));
+                        actualPtr = &(data[3]);
+                        endDataPtr = &(data[dataLength+7]);
+                    }
+
+            *actualPtr = *i;
+            ++actualPtr;
+
+            if (actualPtr == endDataPtr && dataLength > 0) {
 
                 if (numberOfPackets < packetsLength ) {
-                    uint8_t dataLength = (0x3C & (data[3]));
                     uint16_t checksum = 's'+'n'+'p';
 
-                    for (uint8_t *i = &(data[3]); i != &(data[5+dataLength]); ++i) {
+                    for (uint8_t *i = &(data[3]); i != &(data[5+dataLength]); ++i)
                         checksum += *i;
-                    }
 
 //                    {
 //                        std::cout << "dataLength: " << int(dataLength) << std::endl;
@@ -84,22 +91,15 @@ public:
                     std::cerr << "\tPacket lost, too small [Packet *packets] array.\n";
                 }
 
-                actualPtr = &(data[2]);
-//                data[0] = 's'; data[1] = 'n';
-                data[0] = 0; data[1] = 0;
-            }
-            else {
-                data[0] = 0; data[1] = 0;
+                dataLength = 0;
+                actualPtr = &(data[3]);
             }
 
             if (actualPtr == endPtr) {
-                actualPtr = &(data[0]);
+                actualPtr = &(data[3]);
                 data[0] = 0; data[1] = 0;
-                throw Exception("Too many badly sent packets, function: _base_UM7LT::parseData(uint8_t*,uint8_t)");
+                throw Exception("Too many badly sent packets, function: base_UM7LT::parseData(uint8_t*,uint8_t)");
             }
-
-            *actualPtr = *i;
-            ++actualPtr;
         }
         return numberOfPackets;
     }
