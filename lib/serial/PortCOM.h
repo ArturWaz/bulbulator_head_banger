@@ -35,12 +35,12 @@ public:
 		virtual char const *what() const throw() { return info; }
 	};
 
-	PortCOM(int portNumber, int baudrate): portNumber(portNumber), baudrate(baudrate), opened(false) {
-		PortCOM::mode = (char*) malloc(4*sizeof(char));
+	PortCOM(int const portNumber, int const baudrate): portNumber(portNumber), baudrate(baudrate), opened(false) {
+		PortCOM::mode = (char*)malloc(4*sizeof(char));
 		std::strcpy(PortCOM::mode,"8N1");
 	}
-	PortCOM(int portNumber, int baudrate, const char*mode): portNumber(portNumber), baudrate(baudrate), opened(false) {
-		PortCOM::mode = (char*) malloc((strlen(mode)+1)*sizeof(char));
+	PortCOM(int const portNumber, int const baudrate, char const *mode): portNumber(portNumber), baudrate(baudrate), opened(false) {
+		PortCOM::mode = (char*)malloc((strlen(mode)+1)*sizeof(char));
 		std::strcpy(PortCOM::mode,mode);
 	}
 	~PortCOM() {
@@ -68,14 +68,14 @@ public:
 		return c[0];
 	}
 
-	void sendBlock(uint8_t *buffer, uint8_t length) {
+	void sendBlock(uint8_t *buffer, uint8_t const length) {
 		if (!opened) throw Exception("Port is closed, function PortCOM::sendBlock(uint8_t*,uint8_t)");
 		if (RS232_SendBuf(portNumber, buffer, length) != length) throw Exception("Cannot send block, function: PortCOM::sendBlock(uint8_t*,uint8_t)");
 	}
-	int readBlock(uint8_t *buffer, uint8_t length) {
+	int readBlock(uint8_t *buffer, uint8_t const length) {
 		if (!opened) throw Exception("Port is closed, function: PortCOM::readBlock(uint8_t*,uint8_t)");
 		int number = RS232_PollComport(portNumber, buffer, (unsigned char)length);
-		if (number <= 0) throw Exception("Cannot read block, function: PortCOM::readBlock(uint8_t*,uint8_t)");
+		if (number < 0) throw Exception("Cannot read block, function: PortCOM::readBlock(uint8_t*,uint8_t)");
 		return number;
 	}
 
