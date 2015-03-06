@@ -8,11 +8,11 @@
 
 #include "winsock2.h"
 #include <iostream>
+#include <io.h>
 #include "serial/PortCOM.h"
 #include "base_UM7LT.h"
-//#include "UM7LT.h"
+#include "UM7LT.h"
 #include "serial/ClientTCP.h"
-#include "Buffer_UNIT_TESTS.h"
 
 using namespace std;
 
@@ -31,7 +31,20 @@ void writeArray (uint8_t *a, uint8_t l) {
 
 int main(){
 
-    Buffer_UINT_TESTS::iteratortest();
+
+    UM7LT um7(4);
+
+    cout << hex;
+
+    while (true) {
+        uint16_t read = um7.getData();
+//        if (read & UM7LT::Data::ACC_PROC)
+//            cout << "Read: accel; ";
+//        if (read & UM7LT::Data::EULER)
+//            cout << "Read: euler; ";
+//        if (read)
+//            cout << endl;
+    }
 
     return 0;
 }
