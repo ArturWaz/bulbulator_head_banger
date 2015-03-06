@@ -13,107 +13,77 @@
 #include <cstdlib>
 
 
-template <class T, unsigned long LENGTH> class Buffer {
+template <class T, unsigned long LENGTH>
+class Buffer {
 
-    T array[LENGTH] = {};
-    unsigned long length;
-    unsigned long index;
+    T array_[LENGTH] = {};
+    unsigned long length_;
+    unsigned long index_;
+
+    T * const beginPtr_;
+    T * const endPtr_;
 
     void operator=(Buffer) {}
-    Buffer(Buffer &) {}
+    Buffer(Buffer &): beginPtr_(&(array_[0])), endPtr_(&(array_[LENGTH-1])) {}
 
 public:
 
-    Buffer(): length(LENGTH), index(0) {}
-    Buffer(T const &initValue): length(LENGTH), index(0) { for (T &elem : array) elem = initValue; }
+    Buffer(): length_(LENGTH), index_(0), beginPtr_(&(array_[0])), endPtr_(&(array_[LENGTH-1])) {   }
+    Buffer(T const &initValue): length_(LENGTH), index_(0), beginPtr_(&(array_[0])), endPtr_(&(array_[LENGTH-1])) { for (T &elem : array_) elem = initValue; }
     ~Buffer() {}
 
-    inline T *ptrToBuffer() { return &(array[0]); }
+    inline T *ptrToBuffer() { return &(array_[0]); }
 
     inline T const &operator[](unsigned long i) const {
-        if (i >= length) throw -1;
-        return array[i];
+        if (i >= length_) throw -1;
+        return array_[i];
     }
     inline T &operator[](unsigned long i) {
-        if (i >= length) throw -1;
-        return array[i];
+        if (i >= length_) throw -1;
+        return array_[i];
     }
 
-    inline unsigned long size() const { return length; }
-    inline unsigned long indexPosition() const { return index; }
+    inline unsigned long size() const { return length_; }
+    inline unsigned long length() const { return length_; }
+    inline unsigned long indexPosition() const { return index_; }
 
-    inline void push(T const &element) { ++index; if (index == length) index = 0; array[index] = element; }
+    inline void push(T const &element) { ++index_; if (index_ == length_) index_ = 0; array_[index_] = element; }
 
-    inline T const &last() const { return array[index]; }
-    inline T &last() { return array[index]; }
+    inline T const &last() const { return array_[index_]; }
+    inline T &last() { return array_[index_]; }
 
-    inline T const &get(unsigned long i) const { return (index < i) ? array[index+length-i] : array[index-i]; }
+    inline T const &get(unsigned long i) const { return (index_ < i) ? array_[index_ + length_ -i] : array_[index_ -i]; }
 
-    inline T const &operator()(unsigned long i) const { return (index < i) ? array[index+length-i] : array[index-i]; }
-    inline T &operator()(unsigned long i) { return (index < i) ? array[index+length-i] : array[index-i]; }
+    inline T const &operator()(unsigned long i) const { return (index_ < i) ? array_[index_ + length_ -i] : array_[index_ -i]; }
+    inline T &operator()(unsigned long i) { return (index_ < i) ? array_[index_ + length_ -i] : array_[index_ -i]; }
 
 
-
-/*  TEST ITERATOR CLASS BEFORE USE
 
     class iterator {
         friend class Buffer;
 
-        unsigned long index;
+        T *ptr;
         Buffer *buffer;
 
-        iterator(Buffer *buffer, unsigned long index): buffer(buffer), index(index) {}
+        iterator(Buffer *buffer, T *ptr): buffer(buffer), ptr(ptr) {}
 
     public:
 
-        iterator(iterator const &it): buffer(it.buffer), index(it.index) {}
+        iterator(): ptr(nullptr) {}
         ~iterator() {}
 
-        inline iterator const &operator=(iterator const &it) { index = it.index; buffer = it.buffer; }
+        inline iterator const &operator=(iterator const &it) { buffer = it.buffer; ptr = it.ptr; }
 
-        inline T const &value() const { return buffer->array[index]; }
-        inline T &value() { return buffer->array[index]; }
+        inline T const &value() const { return *ptr; }
+        inline T &value() { return *ptr; }
 
-        inline iterator &operator++() { ++index; if (index == buffer->lenght) index = 0; return *this; }
-        inline iterator &operator--() { if (index == 0) index = buffer->lenght; --index; return *this; }
+        inline iterator &operator++() { (ptr == buffer->beginPtr_) ? ptr = buffer->endPtr_ : --ptr; return *this; }
+        inline iterator &operator--() { (ptr == buffer->endPtr_) ? ptr = buffer->beginPtr_ : ++ptr; return *this; }
 
-        iterator const &operator+=(unsigned long i) {
-            if (i >= buffer->lenght) throw -1;
-            index += i;
-            if (index >= buffer->lenght) index -= buffer->lenght;
-            return *this;
-        }
-        iterator const &operator-=(unsigned long i) {
-            if (i >= buffer->lenght) throw -1;
-            if (index < i) {
-                index += buffer->lenght - i;
-                return *this;
-            }
-            index -= i;
-            return *this;
-        }
-
-        iterator operator+(unsigned long i) const {
-            if (i >= buffer->lenght) throw -1;
-            iterator out(*this);
-            out.index += i;
-            if (out.index >= out.buffer->lenght) out.index -= out.buffer->lenght;
-            return out;
-        }
-        iterator operator-(unsigned long i) const {
-            if (i >= buffer->lenght) throw -1;
-            iterator out(*this);
-            if (out.index < i) {
-                out.index += out.buffer->lenght - i;
-                return out;
-            }
-            out.index -= i;
-            return out;
-        }
     };
 
-    inline iterator begin() { return iterator(this,index); }
-*/
+    inline iterator begin() { return iterator(this,&(array_[index_])); }
+
 
 };
 

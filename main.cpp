@@ -8,10 +8,11 @@
 
 #include "winsock2.h"
 #include <iostream>
-#include "PortCOM.h"
+#include "serial/PortCOM.h"
 #include "base_UM7LT.h"
 //#include "UM7LT.h"
-#include "ClientTCP.h"
+#include "serial/ClientTCP.h"
+#include "Buffer_UNIT_TESTS.h"
 
 using namespace std;
 
@@ -30,6 +31,7 @@ void writeArray (uint8_t *a, uint8_t l) {
 
 int main(){
 
+    Buffer_UINT_TESTS::iteratortest();
 
     return 0;
 }

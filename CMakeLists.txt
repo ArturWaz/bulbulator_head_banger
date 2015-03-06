@@ -15,7 +15,7 @@ set( BOOST_LIBRARIES ${OPENSSL_LIBRARIES} ${BOOST_PATH}/lib/libboost_system-mgw4
 
 
 set( PROJ_LIBRARIES ${BOOST_LIBRARIES} "ws2_32" "wsock32" )
-set( PROJ_INCLUDES ${BOOST_INCLUDES} lib lib/serial )
+set( PROJ_INCLUDES ${BOOST_INCLUDES} lib src )
 file( GLOB_RECURSE PROJ_SOURCES *.cpp lib/serial/*.cpp lib/serial/*.c )
 
 # End of special section
