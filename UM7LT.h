@@ -48,8 +48,6 @@ public:
 
         for (int i = 0; i < parsed; ++i) {
 
-//            std::cout << int(packets[i].dataLength) << std::endl;
-
             uint8_t pos = 0;
             switch (packets[i].address) {
 
@@ -57,26 +55,31 @@ public:
                     ;
 
                 case 0x61: // gryo processed
+
                     data |= Data::GRYO_PROC;
                     pos += 16;
                     if (pos == packets[i].dataLength) break;
 
                 case 0x65: // accel processed
+
                     data |= Data::ACC_PROC;
                     pos += 16;
                     if (pos == packets[i].dataLength) break;
 
                 case 0x69: // mag processed
+
                     data |= Data::MAG_PROC;
                     pos += 16;
                     if (pos == packets[i].dataLength) break;
 
                 case 0x6D: // quternion
+
                     data |= Data::QUAT;
                     pos += 12;
                     if (pos == packets[i].dataLength) break;
 
                 case 0x70: // euler
+
                     data |= Data::EULER;
                     pos += 20;
                     if (pos == packets[i].dataLength) break;
