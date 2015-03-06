@@ -21,6 +21,7 @@ class base_UM7LT {
 
     uint8_t *actualPtr;
     uint8_t *endDataPtr;
+    uint8_t dataLength;
 
 public:
 
@@ -38,13 +39,12 @@ public:
         uint8_t data[maxLength];
     };
 
-    base_UM7LT(): actualPtr(&(data[3])), endPtr(&(data[maxLength])), endDataPtr(&(data[0])) {}
+    base_UM7LT(): actualPtr(&(data[3])), endPtr(&(data[maxLength])), endDataPtr(&(data[0])), dataLength(0) {}
 
     inline uint8_t length() { return maxLength; }
 
     inline uint8_t parseData(uint8_t const *buffer, uint8_t const length, Packet *packets, uint8_t const packetsLength) {
         uint8_t numberOfPackets = 0;
-        uint8_t dataLength = 0;
 
         for (uint8_t *i = const_cast<uint8_t*>(&(buffer[0])); i != &(buffer[length]); ++i) {
 
@@ -67,16 +67,6 @@ public:
 
                     for (uint8_t *i = &(data[3]); i != &(data[5+dataLength]); ++i)
                         checksum += *i;
-
-//                    {
-//                        std::cout << "dataLength: " << int(dataLength) << std::endl;
-//                        std::cout << std::hex;
-//                        for (int i = 0; i < packetsLength; ++i) {
-//                            std::cout << int(data[i]) << " ";
-//                        }
-//                        std::cout << std::dec << std::endl;
-//                    }
-//                    std::cout << "calculated checksum: " << int(checksum) << " to compare: " << ((data[5+dataLength]<<8) | (data[6+dataLength])) << std::endl;
 
                     if (checksum == ((data[5+dataLength]<<8) | (data[6+dataLength]))) {
                         Packet *packet = &(packets[numberOfPackets]);
