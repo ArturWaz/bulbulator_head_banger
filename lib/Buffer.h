@@ -77,6 +77,8 @@ public:
         inline T const &value() const { return *ptr; }
         inline T &value() { return *ptr; }
 
+        inline T &operator*() { return *ptr; }
+
         inline iterator &operator++() { (ptr == buffer->beginPtr_) ? ptr = buffer->endPtr_ : --ptr; return *this; }
         inline iterator &operator--() { (ptr == buffer->endPtr_) ? ptr = buffer->beginPtr_ : ++ptr; return *this; }
 
