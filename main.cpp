@@ -38,12 +38,12 @@ int main(){
 
     while (true) {
         uint16_t read = um7.getData();
-//        if (read & UM7LT::Data::ACC_PROC)
-//            cout << "Read: accel; ";
-//        if (read & UM7LT::Data::EULER)
-//            cout << "Read: euler; ";
-//        if (read)
-//            cout << endl;
+        if (read & UM7LT::Data::ACC_PROC)
+            cout << "Read: accel; ";
+        if (read & UM7LT::Data::EULER)
+            cout << "Read: euler; ";
+        if (read)
+            cout << endl;
     }
 
     return 0;
