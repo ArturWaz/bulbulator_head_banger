@@ -25,10 +25,10 @@ class ClientTCP {
 public:
 
     ClientTCP(char const *server, char const *port): s(io_service), resolver(io_service), server(server), port(port) {}
-    ~ClientTCP() {}
+    ~ClientTCP() { close(); }
 
-    inline void connect() { boost::asio::connect(s, resolver.resolve({server, port})); }
-    inline void disconnect() {}
+    inline void open() { boost::asio::connect(s, resolver.resolve({server, port})); }
+    inline void close() {}
 
     inline uint8_t readBlock(uint8_t *buffer, uint8_t const length) { return (uint8_t)boost::asio::read(s,boost::asio::buffer(buffer, length)); }
     inline void sendBlock(uint8_t const *buffer, uint8_t const length) { boost::asio::write(s, boost::asio::buffer(buffer, length)); }
