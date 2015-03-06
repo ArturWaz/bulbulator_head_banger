@@ -36,8 +36,8 @@ namespace Buffer_UINT_TESTS {
 
         Buffer<int,9>::iterator it = b.begin();
         for (int j = 0; j < b.size()*2; ++j) {
-            cout << it.value() << " ";
-            ++it;
+            cout << *(--it) << " ";
+//            ++it;
         }
         cout << endl;
     }
