@@ -15,32 +15,27 @@
 
 
 namespace GlobalData {
-    static const size_t buffersLengths = 5000;
+    static const size_t bufferLength = 5000;
 
-    struct AccelProcessed {
-        static double lastAcqusisionTime;
-        static Buffer<Vector3DTime,buffersLengths> buffer;
-    };
+    namespace AccelProcessed {
+        static Buffer<Vector3DTime> buffer(bufferLength); // accelerometer measures in [m/s/s]
+    }
 
-    struct GyroProcessed {
-        static double lastAcqusisionTime;
-        static Buffer<Vector3DTime,buffersLengths> buffer;
-    };
+    namespace GyroProcessed {
+        static Buffer<Vector3DTime> buffer(bufferLength);
+    }
 
-    struct MagProcessed {
-        static double lastAcqusisionTime;
-        static Buffer<Vector3DTime,buffersLengths> buffer;
-    };
+    namespace MagProcessed {
+        static Buffer<Vector3DTime> buffer(bufferLength);
+    }
 
-    struct EulerAngle {
-        static double lastAcqusisionTime;
-        static Buffer<Vector3DTime,buffersLengths> buffer;
-    };
+    namespace EulerAngle {
+        static Buffer<Vector3DTime> buffer(bufferLength); // euler angles measures in [rad]
+    }
 
-    struct Quaternion {
-        static double lastAcqusisionTime;
-        static Buffer<Vector3DTime,buffersLengths> buffer;
-    };
+    namespace Quaternion {
+        static Buffer<Vector3DTime> buffer(bufferLength);
+    }
 
 }
 
