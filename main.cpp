@@ -13,6 +13,8 @@
 #include "base_UM7LT.h"
 #include "UM7LT.h"
 #include "serial/ClientTCP.h"
+#include "Buffer.h"
+#include "SensorsStructures.h"
 
 using namespace std;
 
@@ -38,13 +40,21 @@ int main(){
 
     while (true) {
         uint16_t read = um7.getData();
-        if (read & UM7LT::Data::ACC_PROC)
-            cout << "Read: accel; ";
-        if (read & UM7LT::Data::EULER)
-            cout << "Read: euler; ";
-        if (read)
+        if (read & UM7LT::Data::ACC_PROC) {
+            //cout << "Read: accel; ";
+            //cout << GlobalData::AccelProcessed::buffer.last().time << "   ";
+        }
+        if (read & UM7LT::Data::EULER) {
+            Vector3DTime &tmp = GlobalData::EulerAngle::buffer.last();
+            //cout << "Read: euler; ";
+            cout << tmp(0) << " " << tmp(1) << " " << tmp(2) << " " << tmp.time;
+        }
+        if (read) {
             cout << endl;
+        }
     }
+
+
 
     return 0;
 }
