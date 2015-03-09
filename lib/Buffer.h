@@ -13,24 +13,39 @@
 #include <cstdlib>
 
 
-template <class T, unsigned long LENGTH>
+template <typename T/*, size_t LENGTH*/>
 class Buffer {
 
-    T array_[LENGTH] = {};
-    unsigned long length_;
-    unsigned long index_;
+    T * /*const*/ array_;
+    size_t length_;
+    size_t index_;
 
-    T * const beginPtr_;
-    T * const endPtr_;
+    T * /*const*/ beginPtr_; // todo remove this pointer, array_ is sufficient actually
+    T * /*const*/ endPtr_;
 
     void operator=(Buffer) {}
-    Buffer(Buffer &): beginPtr_(&(array_[0])), endPtr_(&(array_[LENGTH-1])) {}
+    Buffer(Buffer &): beginPtr_(nullptr), endPtr_(nullptr) {}
 
 public:
 
-    Buffer(): length_(LENGTH), index_(0), beginPtr_(&(array_[0])), endPtr_(&(array_[LENGTH-1])) {   }
-    Buffer(T const &initValue): length_(LENGTH), index_(0), beginPtr_(&(array_[0])), endPtr_(&(array_[LENGTH-1])) { for (T &elem : array_) elem = initValue; }
-    ~Buffer() {}
+    Buffer(size_t length): length_(length), index_(0)/*, beginPtr_(&(array_[0])), endPtr_(&(array_[LENGTH-1]))*/ {
+        array_ = (T*)malloc(length_*sizeof(T));
+        if (array_ == nullptr) throw 1;
+        beginPtr_ = array_;
+        endPtr_ = &(array_[length_-1]);
+    }
+    Buffer(size_t length, T const &initValue): length_(length), index_(0) {
+        array_ = (T*)malloc(length_*sizeof(T));
+        if (array_ == nullptr) throw 1;
+        beginPtr_ = array_;
+        endPtr_ = &(array_[length_-1]);
+        T *ptr = beginPtr_;
+        while (ptr != endPtr_) {
+            *ptr = initValue;
+            ++ptr;
+        }
+    }
+    ~Buffer() { free(array_); }
 
     inline T *ptrToBuffer() { return &(array_[0]); }
 
@@ -43,9 +58,9 @@ public:
         return array_[i];
     }
 
-    inline unsigned long size() const { return length_; }
-    inline unsigned long length() const { return length_; }
-    inline unsigned long indexPosition() const { return index_; }
+    inline size_t size() const { return length_; }
+    inline size_t length() const { return length_; }
+    inline size_t indexPosition() const { return index_; }
 
     inline void push(T const &element) { ++index_; if (index_ == length_) index_ = 0; array_[index_] = element; }
 
