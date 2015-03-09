@@ -28,15 +28,22 @@ class Buffer {
 
 public:
 
+    class Exception : public std::exception {
+        char const *info;
+    public:
+        explicit Exception(char const *info): info(info) {}
+        virtual char const *what() const throw() { return info; }
+    };
+
     Buffer(size_t length): length_(length), index_(0)/*, beginPtr_(&(array_[0])), endPtr_(&(array_[LENGTH-1]))*/ {
         array_ = (T*)malloc(length_*sizeof(T));
-        if (array_ == nullptr) throw 1;
+        if (array_ == nullptr) throw Exception("Cannot allocate memory, function: Buffer::Buffer(size_t)");
         beginPtr_ = array_;
         endPtr_ = &(array_[length_-1]);
     }
     Buffer(size_t length, T const &initValue): length_(length), index_(0) {
         array_ = (T*)malloc(length_*sizeof(T));
-        if (array_ == nullptr) throw 1;
+        if (array_ == nullptr) throw Exception("Cannot allocate memory, function: Buffer::Buffer(size_t, T const &)");
         beginPtr_ = array_;
         endPtr_ = &(array_[length_-1]);
         T *ptr = beginPtr_;
@@ -49,12 +56,12 @@ public:
 
     inline T *ptrToBuffer() { return &(array_[0]); }
 
-    inline T const &operator[](unsigned long i) const {
-        if (i >= length_) throw -1;
+    inline T const &operator[](size_t i) const {
+        if (i >= length_) throw Exception("Out of range error, function: Buffer::operator[](size_t)");
         return array_[i];
     }
-    inline T &operator[](unsigned long i) {
-        if (i >= length_) throw -1;
+    inline T &operator[](size_t i) {
+        if (i >= length_) throw Exception("Out of range error, function: Buffer::operator[](size_t)");
         return array_[i];
     }
 
@@ -67,10 +74,10 @@ public:
     inline T const &last() const { return array_[index_]; }
     inline T &last() { return array_[index_]; }
 
-    inline T const &get(unsigned long i) const { return (index_ < i) ? array_[index_ + length_ -i] : array_[index_ -i]; }
+    inline T const &get(size_t i) const { return (index_ < i) ? array_[index_ + length_ -i] : array_[index_ -i]; }
 
-    inline T const &operator()(unsigned long i) const { return (index_ < i) ? array_[index_ + length_ -i] : array_[index_ -i]; }
-    inline T &operator()(unsigned long i) { return (index_ < i) ? array_[index_ + length_ -i] : array_[index_ -i]; }
+    inline T const &operator()(size_t i) const { return (index_ < i) ? array_[index_ + length_ -i] : array_[index_ -i]; }
+    inline T &operator()(size_t i) { return (index_ < i) ? array_[index_ + length_ -i] : array_[index_ -i]; }
 
 
 
