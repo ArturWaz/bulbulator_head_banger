@@ -36,13 +36,13 @@ public:
     };
 
     Buffer(size_t length): length_(length), index_(0)/*, beginPtr_(&(array_[0])), endPtr_(&(array_[LENGTH-1]))*/ {
-        array_ = (T*)malloc(length_*sizeof(T));
+        array_ = new T [length_];
         if (array_ == nullptr) throw Exception("Cannot allocate memory, function: Buffer::Buffer(size_t)");
         beginPtr_ = array_;
         endPtr_ = &(array_[length_-1]);
     }
     Buffer(size_t length, T const &initValue): length_(length), index_(0) {
-        array_ = (T*)malloc(length_*sizeof(T));
+        array_ = new T [length_];
         if (array_ == nullptr) throw Exception("Cannot allocate memory, function: Buffer::Buffer(size_t, T const &)");
         beginPtr_ = array_;
         endPtr_ = &(array_[length_-1]);
@@ -52,7 +52,7 @@ public:
             ++ptr;
         }
     }
-    ~Buffer() { free(array_); }
+    ~Buffer() { delete []array_; }
 
     inline T *ptrToBuffer() { return &(array_[0]); }
 
