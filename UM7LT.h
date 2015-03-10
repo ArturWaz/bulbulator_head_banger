@@ -92,7 +92,7 @@ public:
                     toInt[1].in = (packets[i].data[pos+2]<<8) | (packets[i].data[pos+3]<<0);
                     toInt[2].in = (packets[i].data[pos+4]<<8) | (packets[i].data[pos+5]<<0);
                     toFloat[3].in = (packets[i].data[pos+16]<<24) | (packets[i].data[pos+17]<<16) | (packets[i].data[pos+18]<<8) | (packets[i].data[pos+19]<<0);
-                    GlobalData::EulerAngle::buffer.push(Vector3DTime(double(toInt[0].out)/91.02222, double(toInt[1].out)/91.02222, double(toInt[2].out)/91.02222, double(toInt[3].out)));
+                    GlobalData::EulerAngle::buffer.push(Vector3DTime((double(toInt[0].out)*PI)/(91.02222*180), (double(toInt[1].out)*PI)/(91.02222*180), (double(toInt[2].out)*PI)/(91.02222*180), double(toFloat[3].out)));
                     data |= Data::EULER;
                     pos += 20;
                     if (pos == packets[i].dataLength) break;
