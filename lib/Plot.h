@@ -125,6 +125,7 @@ public:
     }
 
     inline void addValue(double const &v) {
+        if (isUpdated_) std::cerr << "\tOverwritting value.\n";
         mutex_.lock();
         isUpdated_ = true;
         lastValue_ = v;
