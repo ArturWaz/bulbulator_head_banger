@@ -11,9 +11,6 @@
 #include <io.h>
 #include <CONFIG.h>
 #include <conio.h>
-#include <lmerrlog.h>
-#include <midles.h>
-#include <unicodeobject.h>
 #include "serial/PortCOM.h"
 #include "base_UM7LT.h"
 #include "UM7LT.h"
