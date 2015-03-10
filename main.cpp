@@ -43,33 +43,35 @@ Vector3D<T> eliminateGravity(Vector3D<T> const &accelData, Vector3D<T> const &eu
 //    cout << " \t" << setprecision(7) << out(0) << ", \t" << out(1) << ", \t" << out(2) << ", \t" << out.norm() <<  "                      " << "\r";
     return out;
 }
-//
-//#define TIME_INTERVAL 20       // number of samples
-//double detectMove(double const &actualValue, double const &lastValue, double const &frequency) {
-//    double out = 0.0;
-//
-//    static Buffer<double> buffer(TIME_INTERVAL);
-//    buffer.push((actualValue-lastValue)*frequency);
-//    Buffer<double>::iterator it = buffer.begin();
-//
-//    double integral = 0.0;
-//    for (size_t j = 0; j < buffer.size(); ++j) {
-//        integral += *it;
-//        ++it;
-//    }
-//
-//    if (fabs(integral) < 0.01) {
-//        out = 1.0;
-//    }
-//
-//    return out;
-//}
+
+
+
+#define TIME_INTERVAL 10       // number of samples
+double detectMove(double const &actualValue, double const &lastValue, double const &frequency) {
+    double out = 0.0;
+
+    static Buffer<double> buffer(TIME_INTERVAL);
+    buffer.push((actualValue-lastValue)*frequency);
+    Buffer<double>::iterator it = buffer.begin();
+
+    double integral = 0.0;
+    for (size_t j = 0; j < buffer.size(); ++j) {
+        integral += *it;
+        ++it;
+    }
+
+    if (fabs(integral) < 0.01) {
+        out = 1.0;
+    }
+
+    return out;
+}
 
 
 int main(){
 
 
-    UM7LT um7(4);
+    UM7LT um7(3);
     Plot plot;
     plot.show();
 
@@ -138,7 +140,7 @@ int main(){
 //                integral += actualOutValue/50;
 
 
-            double whatToShow = 0;//detectMove(actualInputValue, lastValue, 200);
+            double whatToShow = detectMove(actualInputValue, lastValue, 200);
             plot.addValue(whatToShow);
             cout << whatToShow << endl;
 
