@@ -28,7 +28,8 @@ public:
         GRYO_PROC    = 0x0002,
         MAG_PROC     = 0x0004,
         EULER        = 0x0008,
-        QUAT         = 0x0010
+        QUAT         = 0x0010,
+        ACC_RAW      = 0x0020
     };
 
     UM7LT(int const portNumber): PortCOM(portNumber,115200) { open(); }
@@ -58,6 +59,17 @@ public:
 
                 case 0x55:
                     ;
+
+                case 0x59: // accel raw
+                    toInt[0].in = (packets[i].data[pos+0]<<8) | (packets[i].data[pos+1]<<0);
+                    toInt[1].in = (packets[i].data[pos+2]<<8) | (packets[i].data[pos+3]<<0);
+                    toInt[2].in = (packets[i].data[pos+4]<<8) | (packets[i].data[pos+5]<<0);
+                    toFloat[3].in = (packets[i].data[pos+8]<<24) | (packets[i].data[pos+9]<<16) | (packets[i].data[pos+10]<<8) | (packets[i].data[pos+11]<<0);
+                    GlobalData::AccelRaw::buffer.push(Vector3DTime(double(toInt[0].out), double(toInt[1].out), double(toInt[2].out), double(toFloat[3].out)));
+                    data |= Data::ACC_RAW;
+                    pos += 12;
+                    if (pos == packets[i].dataLength) break;
+
 
                 case 0x61: // gryo processed
                     // todo

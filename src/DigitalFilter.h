@@ -26,15 +26,17 @@ namespace DigitalFilter {
     template <class T, unsigned int NUMBER_OF_SECTIONS> class IIR_DirectFormII {
 
         unsigned int numberOfSections;
-        Buffer<T,2> buffer[NUMBER_OF_SECTIONS];
+        Buffer<T> *buffer;
 
 //        T **numerator;
 //        T **denominator;
 
     public:
 
-        IIR_DirectFormII(): numberOfSections(NUMBER_OF_SECTIONS) {}
-        ~IIR_DirectFormII() {}
+        IIR_DirectFormII():  numberOfSections(NUMBER_OF_SECTIONS) {
+            buffer = new Buffer<T>[numberOfSections](2);
+        }
+        ~IIR_DirectFormII() { delete []buffer; }
 
         T filterMatlabCoeffs(T const &actualValue) {
             T out = actualValue;
@@ -56,14 +58,14 @@ namespace DigitalFilter {
 
     template <class T, unsigned int ORDER> class FIR_DirectFormI {
 
-        Buffer<T,ORDER> buffer;
+        Buffer<T> buffer;
         unsigned int order;
 
 //        T *numerator;
 
     public:
 
-        FIR_DirectFormI(): order(ORDER) {}
+        FIR_DirectFormI(): buffer(ORDER), order(ORDER) {}
         ~FIR_DirectFormI() {}
 
         T filterMatlabCoeffs(T const &actualValue) {
@@ -82,13 +84,13 @@ namespace DigitalFilter {
 
     template <class T, unsigned int ORDER> class Average {
 
-        Buffer<T,ORDER> buffer;
+        Buffer<T> buffer;
 
         T sum; // temporary average use to improve speed of calculations
 
     public:
 
-        Average(): sum(0) {}
+        Average(): buffer(ORDER), sum(0) {}
         ~Average() {}
 
         T filter(T const &actualValue) {
@@ -98,12 +100,14 @@ namespace DigitalFilter {
             return sum/buffer.size();
         }
 
+        inline T actual() const { return sum/buffer.size(); }
+
     };
 
 
     template <class T, unsigned int ORDER> class Median {
 
-        Buffer<T,ORDER> buffer;
+        Buffer<T> buffer;
         unsigned int medianIndex;
 
 //        struct element {
@@ -114,7 +118,7 @@ namespace DigitalFilter {
 
     public:
 
-        Median(): medianIndex(ORDER/2) {}
+        Median(): buffer(ORDER), medianIndex(ORDER/2) {}
         ~Median() {}
 
         T filter(T const &actualValue) {

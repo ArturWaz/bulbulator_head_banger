@@ -17,6 +17,10 @@
 namespace GlobalData {
     static const size_t bufferLength = 5000;
 
+    namespace AccelRaw {
+        static Buffer<Vector3DTime> buffer(bufferLength); // accelerometer measures in [m/s/s]
+    }
+
     namespace AccelProcessed {
         static Buffer<Vector3DTime> buffer(bufferLength); // accelerometer measures in [m/s/s]
     }
