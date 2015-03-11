@@ -8,6 +8,7 @@
 
 #include "winsock2.h"
 #include <iostream>
+#include <fstream>
 #include <io.h>
 #include <CONFIG.h>
 #include <conio.h>
@@ -46,34 +47,46 @@ Vector3D<T> eliminateGravity(Vector3D<T> const &accelData, Vector3D<T> const &eu
 
 
 
-#define TIME_INTERVAL 10       // number of samples
+#define TIME_INTERVAL 25       // number of samples
 double detectMove(double const &actualValue, double const &lastValue, double const &frequency) {
     double out = 0.0;
 
+    static double integral(0.0);
     static Buffer<double> buffer(TIME_INTERVAL);
-    buffer.push((actualValue-lastValue)*frequency);
-    Buffer<double>::iterator it = buffer.begin();
 
-    double integral = 0.0;
+    double derivative = (actualValue-lastValue)*frequency;
+    buffer.push((fabs(derivative) < 0.5) ? 0.0 : derivative);
+
+    double integralTMP = 0.0;
+    Buffer<double>::iterator it = buffer.begin();
     for (size_t j = 0; j < buffer.size(); ++j) {
-        integral += *it;
+        integralTMP += *it;
         ++it;
     }
 
-    if (fabs(integral) < 0.01) {
-        out = 1.0;
+    if (fabs(integralTMP) < 1) {
+        integralTMP = 0.0;
+        it = buffer.begin();
+        for (size_t j = 0; j < buffer.size(); ++j) {
+            integralTMP += fabs(*it);
+            ++it;
+        }
+        integral += integralTMP;
+//        out = integral;
     }
-
+    out = integral;
     return out;
 }
 
 
 int main(){
 
-
-    UM7LT um7(3);
+    UM7LT um7(4);
     Plot plot;
     plot.show();
+
+//    std::ofstream outputFile("tmp.csv",ios::trunc);
+//    outputFile << "time,ax,ay,az\n";
 
     cout << hex;
 
@@ -143,6 +156,7 @@ int main(){
             double whatToShow = detectMove(actualInputValue, lastValue, 200);
             plot.addValue(whatToShow);
             cout << whatToShow << endl;
+//            outputFile << GlobalData::AccelProcessed::buffer.last().time << "," << whatToShow << endl;
 
             lastValue = actualInputValue;
             ++average_tmp_value_for_iter;
@@ -153,7 +167,7 @@ int main(){
         }
     }
 
-
+//    outputFile.close();
 
     return 0;
 }
