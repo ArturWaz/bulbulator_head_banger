@@ -18,13 +18,16 @@
 #include <serial/PortCOM.h>
 
 
-#define PORT_NR 4
+#define UM7LT_PORT_NR 4
+#define MAESTRO_PORT_NR 0
 
 
 using boost::asio::ip::tcp;
 
 
-PortCOM portCOM(PORT_NR,115200);
+PortCOM um7lt_port(UM7LT_PORT_NR,115200);
+PortCOM maestro_port(MAESTRO_PORT_NR,115200);
+
 
 
 class session;
@@ -55,7 +58,9 @@ public:
 
     void start()
     {
-        do_read();
+        while (true) {
+            do_read();
+        }
     }
 
     inline void writeData(uint8_t const *data, std::size_t length) {
@@ -67,8 +72,11 @@ private:
     void do_read()
     {
         auto self(shared_from_this());
-        socket_.async_read_some(boost::asio::buffer(data_, max_length),
-                [this, self](boost::system::error_code ec, std::size_t length){});
+        socket_.async_read_some(boost::asio::buffer(data_, 250),
+                [this, self](boost::system::error_code ec, std::size_t length){
+//                    maestro_port.sendBlock(data_, uint8_t(length));
+                    std::cout << "Packet acquired" << std::endl;
+                });
         // todo implement later
     }
 
@@ -87,7 +95,7 @@ private:
 
     tcp::socket socket_;
     enum { max_length = 1024 };
-    char data_[max_length];
+    uint8_t data_[max_length];
 };
 
 class server
@@ -121,10 +129,14 @@ private:
 
 
 
+void sendToMaestroThread() {
+
+}
 
 
-void sendingThread() {
-    portCOM.open();
+
+void sendToClientsThread() {
+    um7lt_port.open();
 
     uint8_t buffer[253];
     uint8_t bufferRead;
@@ -136,7 +148,7 @@ void sendingThread() {
 
     while (true) {
 
-        bufferRead = portCOM.readBlock(buffer, 250);
+        bufferRead = um7lt_port.readBlock(buffer, 250);
         if (!bufferRead) continue;
 
         packetsRead = um7.parseData(buffer, bufferRead, packets, 10);
@@ -171,7 +183,7 @@ void sendingThread() {
 
     }
 
-    portCOM.close();
+    um7lt_port.close();
 }
 
 
@@ -179,8 +191,9 @@ void sendingThread() {
 int main(int argc, char* argv[])
 {
 
-    std::thread Thread(sendingThread);
+    std::thread Thread(sendToClientsThread);
     Thread.detach();
+    maestro_port.open();
 
     try
     {
@@ -200,6 +213,9 @@ int main(int argc, char* argv[])
     {
         std::cerr << "Exception: " << e.what() << "\n";
     }
+
+
+    maestro_port.close();
 
     return 0;
 }
